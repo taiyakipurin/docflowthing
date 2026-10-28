@@ -1,3 +1,10 @@
-print('こんにちはです～～～～')
-print('ここはまだ空っぽだが、この先きっと何かが現れる。')
-print('現れへんとやばいんっす。いや、マジでやばい。具体的に全体的に絶望的に完全にやばい、という意味。つまり、やばい。ところで、岬ちゃんが来ないんだぞ。')
+from fastapi import FastAPI
+
+def create_app():
+    app = FastAPI()
+
+    @app.get('/')
+    def root():
+        return {'message': 'Hello World'}
+
+    return app
