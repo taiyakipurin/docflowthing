@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.core.database import Base
 
-from app.models.associations import user_roles
+from app.models.associations.user_role import user_roles
 
 class Role(Base):
     __tablename__ = 'roles'

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from app.core.database import Base
 
-from app.models.role import user_roles
+from app.models.associations.user_role import user_roles
 
 class User(Base):
     __tablename__ = 'users'
