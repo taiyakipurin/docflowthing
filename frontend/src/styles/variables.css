@@ -1,0 +1,16 @@
+:root
+{
+    font-family: Arial, sans-serif;
+
+    color: #25282c;
+    background: #f4f4f4;
+
+    --color-primary: #303943;
+    --color-sidebar: #e8e9eb;
+    --color-border: #c8cbd0;
+    --color-background: #ffffff;
+    --color-text: #25282c;
+    --color-muted: #6b7077;
+
+    --sidebar-width: 230px;
+}
