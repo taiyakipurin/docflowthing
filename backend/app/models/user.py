@@ -5,6 +5,8 @@ from datetime import datetime
 from app.core.database import Base
 
 from app.models.associations.user_role import user_roles
+# from app.models.approval_decision import ApprovalDecision
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -47,4 +49,8 @@ class User(Base):
         'Role',
         secondary=user_roles,
         back_populates='users'
+    )
+
+    approval_decisions: Mapped[list['ApprovalDecision']] = relationship(
+        back_populates='approver',
     )

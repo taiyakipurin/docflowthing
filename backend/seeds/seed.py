@@ -4,10 +4,12 @@ from sqlalchemy import select
 from datetime import datetime
 
 from app.core.database import SessionLocal, Base, engine
+from app.models.automation_scenario import AutomationScenario
 from app.models.role import Role
 from app.models.user import User
 from app.models.server import Server
 from app.models.infrastructure_document import InfrastructureDocument
+from app.models.approval_decision import ApprovalDecision
 
 SEEDS_DIR = Path(__file__).parent
 
@@ -121,6 +123,67 @@ def seed_documents(session):
         existing_document.status = document_data['status']
         existing_document.submitted_at = submitted_at
 
+def seed_approval_decisions(session):
+    decisions = load_json('approval_decisions.json')
+
+    for decision_data in decisions:
+        document = session.scalar(
+            select(InfrastructureDocument).where(
+                InfrastructureDocument.title == decision_data['document_title']
+            )
+        )
+
+        approver = session.scalar(
+            select(User).where(
+                User.username == decision_data['approver_username']
+            )
+        )
+
+        if document is None:
+            raise ValueError(f'error: {decision_data["document_title"]}')
+
+        if approver is None:
+            raise ValueError(f'error: {decision_data["approver_username"]}')
+
+        decided_at = datetime.fromisoformat(decision_data['decided_at'])
+
+        existing_decision = session.scalar(
+            select(ApprovalDecision).where(
+                ApprovalDecision.document_id == document.id,
+                ApprovalDecision.approver_id == approver.id,
+            )
+        )
+
+        if existing_decision is None:
+            existing_decision = ApprovalDecision(
+                document_id=document.id,
+                approver_id=approver.id
+            )
+
+            session.add(existing_decision)
+
+        existing_decision.decision = decision_data['decision']
+        existing_decision.reason = decision_data['reason']
+        existing_decision.decided_at = decided_at
+
+def seed_automation_scenarios(session):
+    automation_scenarios = load_json('automation_scenarios.json')
+
+    for automation_data in automation_scenarios:
+        existing_scenario = session.scalar(
+            select(AutomationScenario).where(
+                AutomationScenario.name == automation_data['name'])
+        )
+
+        if existing_scenario is None:
+            existing_scenario = AutomationScenario(**automation_data)
+
+            session.add(existing_scenario)
+        else:
+            existing_scenario.description = automation_data['description']
+            existing_scenario.playbook_path = automation_data['playbook_path']
+            existing_scenario.is_active = automation_data['is_active']
+
 def seed():
     Base.metadata.create_all(bind=engine)
 
@@ -136,6 +199,12 @@ def seed():
             session.flush()
 
             seed_documents(session)
+            session.flush()
+
+            seed_approval_decisions(session)
+            session.flush()
+
+            seed_automation_scenarios(session)
             session.flush()
 
             session.commit()

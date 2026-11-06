@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Установка Nginx",
+        "description": "Установка и базовая настройка веб-сервера Nginx.",
+        "playbook_path": "ansible/playbooks/install_nginx.yml",
+        "is_active": true
+    },
+    {
+        "name": "Обновление пакетов",
+        "description": "Обновление установленных пакетов операционной системы.",
+        "playbook_path": "ansible/playbooks/update_packages.yml",
+        "is_active": true
+    },
+    {
+        "name": "Создание пользователя",
+        "description": "Создание системной учётной записи на сервере.",
+        "playbook_path": "ansible/playbooks/create_user.yml",
+        "is_active": true
+    }
+]

@@ -1,0 +1,23 @@
+[
+    {
+        "document_title": "Установка Nginx",
+        "approver_username": "test2",
+        "decision": "approved",
+        "reason": "Документ согласован.",
+        "decided_at": "2026-11-04T13:00:00+00:00"
+    },
+    {
+        "document_title": "Обслуживание сервера базы данных",
+        "approver_username": "test2",
+        "decision": "rejected",
+        "reason": "Необходимо уточнить план технического обслуживания.",
+        "decided_at": "2026-11-03T10:00:00+00:00"
+    },
+    {
+        "document_title": "Настройка системы мониторинга",
+        "approver_username": "test7",
+        "decision": "approved",
+        "reason": "Работы согласованы.",
+        "decided_at": "2026-11-02T15:00:00+00:00"
+    }
+]

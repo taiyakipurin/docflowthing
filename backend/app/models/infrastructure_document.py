@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
 from app.core.database import Base
+# from app.models.approval_decision import ApprovalDecision
 from app.models.associations.document_server import document_servers
 
 class InfrastructureDocument(Base):
@@ -59,3 +60,6 @@ class InfrastructureDocument(Base):
         back_populates='documents'
     )
 
+    approval_decisions: Mapped[list['ApprovalDecision']] = relationship(
+        back_populates='document'
+    )

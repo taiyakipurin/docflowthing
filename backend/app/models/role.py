@@ -21,7 +21,7 @@ class Role(Base):
     )
     
     name: Mapped[str] = mapped_column(
-        String,
+        String(100),
         nullable=False, 
         unique=True
     )
