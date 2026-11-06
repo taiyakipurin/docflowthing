@@ -1,0 +1,32 @@
+[
+    {
+        "hostname": "web-01",
+        "ip_address": "192.0.2.10",
+        "description": "Основной веб-сервер",
+        "status": "active"
+    },
+    {
+        "hostname": "web-02",
+        "ip_address": "192.0.2.11",
+        "description": "Резервный веб-сервер",
+        "status": "active"
+    },
+    {
+        "hostname": "db-01",
+        "ip_address": "192.0.2.20",
+        "description": "Основной сервер базы данных",
+        "status": "active"
+    },
+    {
+        "hostname": "app-01",
+        "ip_address": "192.0.2.30",
+        "description": "Сервер прикладных сервисов",
+        "status": "maintenance"
+    },
+    {
+        "hostname": "monitor-01",
+        "ip_address": "192.0.2.40",
+        "description": "Сервер мониторинга инфраструктуры",
+        "status": "inactive"
+    }
+]

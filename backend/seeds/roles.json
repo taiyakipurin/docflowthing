@@ -1,0 +1,23 @@
+[
+    {
+        "code": "INITIATOR",
+        "name": "Инициатор"
+    },
+    {
+        "code": "APPROVER",
+        "name": "Согласующий"
+    },
+    {
+        "code": "ADMIN",
+        "name": "Администратор"
+    },
+    {
+        "code": "SYSADMIN",
+        "name": "Системный администратор"
+    },
+    {
+        "code": "AUDITOR",
+        "name": "Аудитор"
+    }
+]
+

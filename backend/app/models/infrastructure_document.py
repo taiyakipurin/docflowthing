@@ -17,7 +17,7 @@ class InfrastructureDocument(Base):
 
     author_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey('user.id'),
+        ForeignKey('users.id'),
         nullable=False
     )
 
@@ -53,7 +53,8 @@ class InfrastructureDocument(Base):
         nullable=True
     )
 
-    servers: Mapped[list['Servers']] = relationship(
+    servers: Mapped[list['Server']] = relationship(
+        'Server',
         secondary=document_servers,
         back_populates='documents'
     )

@@ -44,6 +44,7 @@ class Server(Base):
     )
 
     documents: Mapped[list['InfrastructureDocument']] = relationship(
+        'InfrastructureDocument',
         secondary=document_servers,
         back_populates='servers'
     )
