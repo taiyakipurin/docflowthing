@@ -19,5 +19,26 @@
         "decision": "approved",
         "reason": "Работы согласованы.",
         "decided_at": "2026-11-02T15:00:00+00:00"
+    },
+     {
+        "document_title": "Обновление пакетов веб-серверов",
+        "approver_username": "test2",
+        "decision": "approved",
+        "reason": "План обновления согласован. Ожидается подтверждение остальных участников.",
+        "decided_at": "2026-11-05T11:00:00+00:00"
+    },
+    {
+        "document_title": "Установка Nginx",
+        "approver_username": "test7",
+        "decision": "approved",
+        "reason": "Изменение инфраструктуры согласовано.",
+        "decided_at": "2026-11-04T13:15:00+00:00"
+    },
+    {
+        "document_title": "Настройка системы мониторинга",
+        "approver_username": "test15",
+        "decision": "approved",
+        "reason": "Конфигурация мониторинга согласована.",
+        "decided_at": "2026-11-02T15:10:00+00:00"
     }
 ]

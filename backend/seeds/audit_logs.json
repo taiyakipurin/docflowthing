@@ -1,0 +1,114 @@
+
+[
+    {
+        "username": "test1",
+        "action": "document_created",
+        "entity_type": "InfrastructureDocument",
+        "entity_title": "Установка Nginx",
+        "details": {
+            "description": "Создан документ на установку Nginx."
+        },
+        "created_at": "2026-11-04T12:00:00+00:00"
+    },
+    {
+        "username": "test1",
+        "action": "document_submitted",
+        "entity_type": "InfrastructureDocument",
+        "entity_title": "Установка Nginx",
+        "details": {
+            "old_status": "draft",
+            "new_status": "pending"
+        },
+        "created_at": "2026-11-04T12:30:00+00:00"
+    },
+    {
+        "username": "test2",
+        "action": "document_approved",
+        "entity_type": "InfrastructureDocument",
+        "entity_title": "Установка Nginx",
+        "details": {
+            "decision": "approved",
+            "reason": "Документ согласован."
+        },
+        "created_at": "2026-11-04T13:00:00+00:00"
+    },
+    {
+        "username": "test6",
+        "action": "automation_started",
+        "entity_type": "AutomationJob",
+        "entity_title": "Установка Nginx",
+        "details": {
+            "scenario": "Установка Nginx",
+            "status": "running"
+        },
+        "created_at": "2026-11-04T13:29:00+00:00"
+    },
+    {
+        "username": "test6",
+        "action": "automation_failed",
+        "entity_type": "AutomationJob",
+        "entity_title": "Установка Nginx",
+        "details": {
+            "scenario": "Установка Nginx",
+            "status": "failed",
+            "server": "web-02"
+        },
+        "created_at": "2026-11-04T13:33:00+00:00"
+    },
+    {
+        "username": "test6",
+        "action": "automation_started",
+        "entity_type": "AutomationJob",
+        "entity_title": "Установка Nginx",
+        "details": {
+            "scenario": "Установка Nginx",
+            "status": "running"
+        },
+        "created_at": "2026-11-04T13:59:00+00:00"
+    },
+    {
+        "username": "test6",
+        "action": "automation_completed",
+        "entity_type": "AutomationJob",
+        "entity_title": "Установка Nginx",
+        "details": {
+            "scenario": "Установка Nginx",
+            "status": "completed",
+            "server": "web-02"
+        },
+        "created_at": "2026-11-04T14:04:00+00:00"
+    },
+    {
+        "username": "test8",
+        "action": "automation_completed",
+        "entity_type": "AutomationJob",
+        "entity_title": "Настройка системы мониторинга",
+        "details": {
+            "scenario": "Настройка системы мониторинга",
+            "status": "completed",
+            "server": "monitor-01"
+        },
+        "created_at": "2026-11-02T15:38:00+00:00"
+    },
+    {
+        "username": "test3",
+        "action": "server_updated",
+        "entity_type": "Server",
+        "entity_title": "web-02",
+        "details": {
+            "description": "Обновлены сведения о сервере."
+        },
+        "created_at": "2026-11-03T11:00:00+00:00"
+    },
+    {
+        "username": "test7",
+        "action": "document_rejected",
+        "entity_type": "InfrastructureDocument",
+        "entity_title": "Обслуживание сервера базы данных",
+        "details": {
+            "decision": "rejected",
+            "reason": "Необходимо уточнить план технического обслуживания."
+        },
+        "created_at": "2026-11-03T10:00:00+00:00"
+    }
+]

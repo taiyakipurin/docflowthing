@@ -63,3 +63,11 @@ class InfrastructureDocument(Base):
     approval_decisions: Mapped[list['ApprovalDecision']] = relationship(
         back_populates='document'
     )
+
+    automation_jobs: Mapped[list['AutomationJob']] = relationship(
+        back_populates='document'
+    )
+
+    execution_acts: Mapped[list['ExecutionAct']] = relationship(
+        back_populates='document'
+    )

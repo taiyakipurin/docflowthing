@@ -52,5 +52,17 @@ class User(Base):
     )
 
     approval_decisions: Mapped[list['ApprovalDecision']] = relationship(
-        back_populates='approver',
+        back_populates='approver'
+    )
+
+    automation_jobs: Mapped[list['AutomationJob']] = relationship(
+        back_populates='launcher'
+    )
+
+    execution_acts: Mapped[list['ExecutionAct']] = relationship(
+        back_populates='creator'
+    )
+
+    audit_logs: Mapped[list['AuditLog']] = relationship(
+        back_populates='auditor'
     )

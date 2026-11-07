@@ -48,3 +48,7 @@ class Server(Base):
         secondary=document_servers,
         back_populates='servers'
     )
+
+    job_results: Mapped[list['JobServerResult']] = relationship(
+        back_populates='server',
+    )

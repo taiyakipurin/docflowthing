@@ -16,5 +16,17 @@
         "description": "Создание системной учётной записи на сервере.",
         "playbook_path": "ansible/playbooks/create_user.yml",
         "is_active": true
+    },
+       {
+        "name": "Настройка системы мониторинга",
+        "description": "Установка и настройка компонентов мониторинга серверной инфраструктуры.",
+        "playbook_path": "ansible/playbooks/setup_monitoring.yml",
+        "is_active": true
+    },
+    {
+        "name": "Обслуживание PostgreSQL",
+        "description": "Выполнение операций технического обслуживания PostgreSQL.",
+        "playbook_path": "ansible/playbooks/maintenance_postgresql.yml",
+        "is_active": true
     }
 ]

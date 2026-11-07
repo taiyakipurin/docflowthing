@@ -1,8 +1,10 @@
 from sqlalchemy import BigInteger, String, DateTime, Boolean, func, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
 from app.core.database import Base
+from app.models.automation_job import AutomationJob
+
 
 class AutomationScenario(Base):
     __tablename__ = 'automation_scenarios'
@@ -39,4 +41,8 @@ class AutomationScenario(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False
+    )
+
+    automation_jobs: Mapped[list[AutomationJob]] = relationship(
+        back_populates='scenario'
     )
