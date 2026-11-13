@@ -1,5 +1,9 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
+
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 

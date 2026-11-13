@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.database import Base, engine
+from app.core.database import Base, get_db, engine
 from app.models.role import Role
 from app.models.user import User
 
