@@ -1,7 +1,7 @@
 import hashlib, jwt, secrets, bcrypt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
-from app.core.config import SECRET_KEY
+from app.core.config import settings
 
 def hash_password(password: str) -> str:
     salt = bcrypt.gensalt()
@@ -13,19 +13,22 @@ def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 def create_access_token(user_id: int, username: str) -> str:
+    now = datetime.now(timezone.utc)
+
     payload = {
-        'id': user_id,
+        'sub': str(user_id),
         'username': username,
-        'exp': datetime.utcnow() + timedelta(minutes=30)
+        'iat': now,
+        'exp': now + timedelta(minutes=15)
     }
 
-    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+    return jwt.encode(payload, settings.secret_key, algorithm='HS256')
+
+def decode_access_token(token: str) -> dict:
+    return jwt.decode(token, settings.secret_key, algorithms=['HS256'])
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode('utf-8')).hexdigest()
 
 def create_refresh_token() -> str:
-    token = secrets.token_urlsafe(32)
-    # token_hash = hash_token(token)
-
-    return token
+    return secrets.token_urlsafe(32)

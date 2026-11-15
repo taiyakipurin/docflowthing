@@ -1,9 +1,6 @@
-import os
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 from pathlib import Path
-
-SECRET_KEY = os.getenv("SECRET_KEY")
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 
@@ -17,7 +14,6 @@ class Settings(BaseSettings):
     )
 
     database_url: str
+    secret_key: str = Field(min_length=32)
 
 settings = Settings()
-
-print("DATABASE_URL:", repr(settings.database_url))

@@ -12,7 +12,7 @@ class UserUpdate(BaseModel):
     full_name: str = Field(
         default = None,
         min_length=1,
-        max_length=255
+        max_length=100
     )
 
     is_active: bool | None = None

@@ -9,3 +9,9 @@ class UserAlreadyExistsError(AppException):
 
 class RoleNotFoundError(AppException):
     pass
+
+class InactiveUserError(AppException):
+    pass
+
+class InvalidCredentialsError(AppException):
+    pass
