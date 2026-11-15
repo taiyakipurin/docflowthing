@@ -20,6 +20,8 @@ from app.api.v1.routes import (
     auth_router
 )
 
+from app.api.v1.routes.test import router as test_router
+
 def create_app():
     app = FastAPI()
 
@@ -37,6 +39,7 @@ def create_app():
     api_v1.include_router(user_router)
     api_v1.include_router(role_router)
     api_v1.include_router(auth_router)
+    api_v1.include_router(test_router)
     app.include_router(api_v1)
 
     print('good to go')

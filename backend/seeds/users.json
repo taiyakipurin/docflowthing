@@ -103,5 +103,12 @@
       "is_active": true,
       "roles": ["INITIATOR", "APPROVER", "AUDITOR"],
       "password_hash": "NDKSNDYSHDQBPWHIBpi8"
+  },
+  {
+      "username": "miko",
+      "full_name": "Hakurei Reimu",
+      "is_active": true,
+      "roles": ["ADMIN"],
+      "password_hash": "$2b$12$TgarNPRnsTzY/hs1bsVJwOgjDmZrSesLYmYzHQ0t8RF4qpN.ohWl2"
   }
 ]
