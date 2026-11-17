@@ -15,3 +15,6 @@ class InactiveUserError(AppException):
 
 class InvalidCredentialsError(AppException):
     pass
+
+class InvalidRefreshTokenError(AppException):
+    pass

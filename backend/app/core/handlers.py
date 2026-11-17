@@ -5,7 +5,8 @@ from app.core.exceptions import (
     UserNotFoundError,
     UserAlreadyExistsError,
     RoleNotFoundError,
-    InvalidCredentialsError
+    InvalidCredentialsError,
+    InvalidRefreshTokenError
 )
 
 async def user_not_found_handler(
@@ -42,4 +43,13 @@ async def invalid_credentials_handler(
     return JSONResponse(
         status_code=401,
         content={'detail': 'Invalid credentials'}
+    )
+
+async def invalid_refresh_token_handler(
+        request: Request,
+        exc: InvalidRefreshTokenError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=401,
+        content={'detail': 'Invalid refresh token'}
     )

@@ -4,14 +4,16 @@ from app.core.exceptions import (
     UserNotFoundError,
     UserAlreadyExistsError,
     RoleNotFoundError,
-    InvalidCredentialsError
+    InvalidCredentialsError,
+    InvalidRefreshTokenError
 )
 
 from app.core.handlers import (
     user_not_found_handler,
     user_already_exists_handler,
     role_not_found_handler,
-    invalid_credentials_handler
+    invalid_credentials_handler,
+    invalid_refresh_token_handler
 )
 
 from app.api.v1.routes import (
@@ -29,6 +31,7 @@ def create_app():
     app.add_exception_handler(UserAlreadyExistsError, user_already_exists_handler)
     app.add_exception_handler(RoleNotFoundError, role_not_found_handler)
     app.add_exception_handler(InvalidCredentialsError, invalid_credentials_handler)
+    app.add_exception_handler(InvalidRefreshTokenError, invalid_refresh_token_handler)
 
     api_v1 = APIRouter(prefix="/api/v1")
 

@@ -1,7 +1,7 @@
 from app.core.security import hash_token
 from app.core.redis import redis_client
 
-def store_refresh(token: str, user_id: int, ttl: int) -> None:
+def store_refresh_token(token: str, user_id: int, ttl: int) -> None:
     token_hash = hash_token(token)
     key = f'refresh:{token_hash}'
 
@@ -11,7 +11,7 @@ def store_refresh(token: str, user_id: int, ttl: int) -> None:
         ex=ttl
     )
 
-def get_refresh(token: str) -> int | None:
+def get_refresh_token(token: str) -> int | None:
     token_hash = hash_token(token)
     key = f'refresh:{token_hash}'
 
@@ -22,9 +22,19 @@ def get_refresh(token: str) -> int | None:
 
     return int(user_id)
 
-def delete_refresh(token: str) -> None:
+def delete_refresh_token(token: str) -> None:
     token_hash = hash_token(token)
     key = f'refresh:{token_hash}'
 
     redis_client.delete(key)
 
+def consume_refresh_token(token: str) -> int | None:
+    token_hash = hash_token(token)
+    key = f'refresh:{token_hash}'
+
+    user_id = redis_client.getdel(key)
+
+    if user_id is None:
+        return None
+
+    return int(user_id)
