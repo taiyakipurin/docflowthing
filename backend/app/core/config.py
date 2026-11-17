@@ -15,5 +15,7 @@ class Settings(BaseSettings):
 
     database_url: str
     secret_key: str = Field(min_length=32)
+    redis_url: str
+    refresh_token_ttl: int = 60* 60 * 24 * 7
 
 settings = Settings()
