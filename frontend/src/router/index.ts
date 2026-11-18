@@ -4,6 +4,8 @@ import MainLayout from '../layouts/MainLayout.vue'
 
 import DocumentsView from '../views/DocumentsView.vue'
 
+import LoginView from '../views/LoginView.vue'
+
 const router = createRouter (
 {
     history: createWebHistory(),
@@ -11,12 +13,22 @@ const router = createRouter (
     routes:
     [
         {
+            path: '/login',
+            name: 'login',
+            component: LoginView,
+        },
+        {
             path: '/',
             component: MainLayout,
 
             children:
             [
                 {
+                    path: '',
+                    redirect: '/login'
+                },
+                {
+                    name: 'documents',
                     path: 'documents',
                     component: DocumentsView
                 },
