@@ -6,7 +6,11 @@ from app.core.exceptions import (
     UserAlreadyExistsError,
     RoleNotFoundError,
     InvalidCredentialsError,
-    InvalidRefreshTokenError
+    InvalidRefreshTokenError,
+    DocumentNotFoundError,
+    DocumentAlreadyExistsError,
+    DocumentStateError,
+    DocumentAccessDeniedError
 )
 
 async def user_not_found_handler(
@@ -53,3 +57,40 @@ async def invalid_refresh_token_handler(
         status_code=401,
         content={'detail': 'Invalid refresh token'}
     )
+
+async def document_not_found_handler(
+        request: Request,
+        exc: DocumentNotFoundError
+):
+    return JSONResponse(
+        status_code=404,
+        content={'detail': 'Document not found'}
+    )
+
+async def document_already_exists_handler(
+        request: Request,
+        exc: DocumentAlreadyExistsError
+):
+    return JSONResponse(
+        status_code=409,
+        content={'detail': 'Document already exists'}
+    )
+
+async def document_state_error_handler(
+        request: Request,
+        exc: DocumentStateError
+):
+    return JSONResponse(
+        status_code=400,
+        content={'detail': 'Document state error'}
+    )
+
+async def document_access_denied_error_handler(
+        request: Request,
+        exc: DocumentAccessDeniedError
+):
+    return JSONResponse(
+        status_code=401,
+        content={'detail': 'Document access denied'}
+    )
+

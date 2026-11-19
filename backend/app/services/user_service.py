@@ -113,7 +113,7 @@ def update_user_role(db: Session, user_id: int, data: UserRolesUpdate) -> UserRe
         db.commit()
         db.refresh(user)
 
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise
 

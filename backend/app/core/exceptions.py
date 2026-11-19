@@ -18,3 +18,15 @@ class InvalidCredentialsError(AppException):
 
 class InvalidRefreshTokenError(AppException):
     pass
+
+class DocumentNotFoundError(AppException):
+    pass
+
+class DocumentAlreadyExistsError(AppException):
+    pass
+
+class DocumentStateError(AppException):
+    pass
+
+class DocumentAccessDeniedError(AppException):
+    pass

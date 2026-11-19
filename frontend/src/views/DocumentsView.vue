@@ -1,57 +1,41 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getDocuments, type Document } from '../api/documents'
 
 const router = useRouter()
 
-interface Document
-{
-    id: number
-    number: string
-    title: string
-    author: string
-    status: string
-    createdAt: string
-}
-
-const documents = ref<Document[]>(
-[
-    {
-        id: 1,
-        number: 'DOC-0001',
-        title: 'Обновление Nginx',
-        author: 'Иванов И.И.',
-        status: 'PENDING_APPROVAL',
-        createdAt: '05.11.2026'
-    },
-    {
-        id: 2,
-        number: 'DOC-0002',
-        title: 'Создание пользователя на сервере',
-        author: 'Петров П.П.',
-        status: 'APPROVED',
-        createdAt: '04.11.2026'
-    },
-    {
-        id: 3,
-        number: 'DOC-0003',
-        title: 'Обновление системных пакетов',
-        author: 'Сидоров С.С.',
-        status: 'REJECTED',
-        createdAt: '03.11.2026'
-    },
-    {
-        id: 4,
-        number: 'DOC-0004',
-        title: 'Установка PostgreSQL',
-        author: 'Иванов И.И.',
-        status: 'DRAFT',
-        createdAt: '02.11.2026'
-    }
-])
-
+const documents = ref<Document[]>([])
 const searchQuery = ref('')
 const selectedStatus = ref('ALL')
+
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+onMounted(async () =>
+{
+    isLoading.value = true
+
+    try
+    {
+        documents.value = await getDocuments()
+    }
+    catch (error)
+    {
+        if (error instanceof Error)
+        {
+            errorMessage.value = error.message
+        }
+        else
+        {
+            errorMessage.value = 'Failed to load documents'
+        }
+        finally
+        {
+            isLoading.value = false
+        }
+    }
+})
 
 const filteredDocuments = computed(() =>
 {
@@ -60,9 +44,9 @@ const filteredDocuments = computed(() =>
         const query = searchQuery.value.toLowerCase()
 
         const matchesSearch =
-            document.number.toLowerCase().includes(query) ||
             document.title.toLowerCase().includes(query) ||
-            document.author.toLowerCase().includes(query)
+            String(document.author_id).includes(query) ||
+            String(document.id).includes(query)
 
         const matchesStatus =
             selectedStatus.value === 'ALL' ||
@@ -76,10 +60,10 @@ function getStatusLabel(status: string): string
 {
     const labels: Record<string, string> =
     {
-        DRAFT: 'Черновик',
-        PENDING_APPROVAL: 'На согласовании',
-        APPROVED: 'Одобрен',
-        REJECTED: 'Отклонён'
+        draft: 'Черновик',
+        submitted: 'На согласовании',
+        approved: 'Одобрен',
+        rejected: 'Отклонён'
     }
 
     return labels[status] ?? status
@@ -94,6 +78,12 @@ function createDocument(): void
 {
     router.push('/documents/new')
 }
+
+function formatDate(date: string): string
+{
+    return new Date(date).toLocaleString('ru-RU')
+}
+
 </script>
 
 <template>
@@ -121,10 +111,10 @@ function createDocument(): void
 
             <select v-model="selectedStatus">
                 <option value="ALL">Все статусы</option>
-                <option value="DRAFT">Черновик</option>
-                <option value="PENDING_APPROVAL">На согласовании</option>
-                <option value="APPROVED">Одобрен</option>
-                <option value="REJECTED">Отклонён</option>
+                <option value="draft">Черновик</option>
+                <option value="submitted">На согласовании</option>
+                <option value="approved">Одобрен</option>
+                <option value="rejected">Отклонён</option>
             </select>
         </div>
 
@@ -146,15 +136,11 @@ function createDocument(): void
                         :key="document.id"
                         @click="openDocument(document.id)"
                     >
-                        <td>{{ document.number }}</td>
+                        <td>{{ document.id }}</td>
                         <td>{{ document.title }}</td>
-                        <td>{{ document.author }}</td>
-                        <td>
-                            <span class="status-label">
-                                {{ getStatusLabel(document.status) }}
-                            </span>
-                        </td>
-                        <td>{{ document.createdAt }}</td>
+                        <td>{{ document.author_id }}</td>
+                        <td>{{ getStatusLabel(document.status) }}</td>
+                        <td>{{ formatDate(document.created_at) }}</td>
                     </tr>
 
                     <tr v-if="filteredDocuments.length === 0">
@@ -173,123 +159,123 @@ function createDocument(): void
 </template>
 
 <style scoped>
-.documents-page
-{
-    width: 100%;
-}
+    .documents-page
+    {
+        width: 100%;
+    }
 
-.page-heading
-{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    .page-heading
+    {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
 
-    margin-bottom: 24px;
-}
+        margin-bottom: 24px;
+    }
 
-.page-heading h1
-{
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-}
+    .page-heading h1
+    {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
 
-.page-heading p
-{
-    margin: 6px 0 0;
-    font-size: 12px;
-    color: var(--color-muted);
-}
+    .page-heading p
+    {
+        margin: 6px 0 0;
+        font-size: 12px;
+        color: var(--color-muted);
+    }
 
-.primary-button
-{
-    padding: 9px 16px;
-    background: var(--color-primary);
-    color: #ffffff;
-    border: 1px solid var(--color-primary);
-}
+    .primary-button
+    {
+        padding: 9px 16px;
+        background: var(--color-primary);
+        color: #ffffff;
+        border: 1px solid var(--color-primary);
+    }
 
-.primary-button:hover
-{
-    background: #414c58;
-}
+    .primary-button:hover
+    {
+        background: #414c58;
+    }
 
-.document-filters
-{
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-}
+    .document-filters
+    {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
 
-.document-filters input
-{
-    width: 350px;
-}
+    .document-filters input
+    {
+        width: 350px;
+    }
 
-.document-filters select
-{
-    min-width: 180px;
-    background: #ffffff;
-}
+    .document-filters select
+    {
+        min-width: 180px;
+        background: #ffffff;
+    }
 
-.table-container
-{
-    overflow-x: auto;
-    border: 1px solid var(--color-border);
-    background: #ffffff;
-}
+    .table-container
+    {
+        overflow-x: auto;
+        border: 1px solid var(--color-border);
+        background: #ffffff;
+    }
 
-.documents-table
-{
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-}
+    .documents-table
+    {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
 
-.documents-table th
-{
-    padding: 12px;
-    background: #eceef0;
-    border-bottom: 1px solid var(--color-border);
+    .documents-table th
+    {
+        padding: 12px;
+        background: #eceef0;
+        border-bottom: 1px solid var(--color-border);
 
-    font-size: 11px;
-    font-weight: 600;
-    color: #555b62;
-}
+        font-size: 11px;
+        font-weight: 600;
+        color: #555b62;
+    }
 
-.documents-table td
-{
-    padding: 13px 12px;
-    border-bottom: 1px solid #e5e6e8;
-    font-size: 13px;
-}
+    .documents-table td
+    {
+        padding: 13px 12px;
+        border-bottom: 1px solid #e5e6e8;
+        font-size: 13px;
+    }
 
-.documents-table tbody tr
-{
-    cursor: pointer;
-}
+    .documents-table tbody tr
+    {
+        cursor: pointer;
+    }
 
-.documents-table tbody tr:hover
-{
-    background: #f1f3f5;
-}
+    .documents-table tbody tr:hover
+    {
+        background: #f1f3f5;
+    }
 
-.status-label
-{
-    font-size: 12px;
-}
+    .status-label
+    {
+        font-size: 12px;
+    }
 
-.empty-message
-{
-    text-align: center;
-    color: var(--color-muted);
-    padding: 28px !important;
-}
+    .empty-message
+    {
+        text-align: center;
+        color: var(--color-muted);
+        padding: 28px !important;
+    }
 
-.table-footer
-{
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--color-muted);
-}
+    .table-footer
+    {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--color-muted);
+    }
 </style>

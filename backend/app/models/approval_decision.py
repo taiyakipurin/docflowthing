@@ -3,8 +3,6 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
 
 from app.core.database import Base
-# from app.models.infrastructure_document import InfrastructureDocument
-
 
 class ApprovalDecision(Base):
     __tablename__ = 'approval_decisions'
@@ -29,9 +27,10 @@ class ApprovalDecision(Base):
 
     decision: Mapped[str] = mapped_column(
         String(50),
+        nullable=False
     )
 
-    reason: Mapped[str] = mapped_column(
+    reason: Mapped[str | None] = mapped_column(
         Text,
         nullable=True
     )

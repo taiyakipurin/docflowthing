@@ -5,7 +5,11 @@ from app.core.exceptions import (
     UserAlreadyExistsError,
     RoleNotFoundError,
     InvalidCredentialsError,
-    InvalidRefreshTokenError
+    InvalidRefreshTokenError,
+    DocumentNotFoundError,
+    DocumentAlreadyExistsError,
+    DocumentStateError,
+    DocumentAccessDeniedError
 )
 
 from app.core.handlers import (
@@ -13,7 +17,11 @@ from app.core.handlers import (
     user_already_exists_handler,
     role_not_found_handler,
     invalid_credentials_handler,
-    invalid_refresh_token_handler
+    invalid_refresh_token_handler,
+    document_not_found_handler,
+    document_already_exists_handler,
+    document_state_error_handler,
+    document_access_denied_error_handler
 )
 
 from app.api.v1.routes import (
@@ -32,6 +40,10 @@ def create_app():
     app.add_exception_handler(RoleNotFoundError, role_not_found_handler)
     app.add_exception_handler(InvalidCredentialsError, invalid_credentials_handler)
     app.add_exception_handler(InvalidRefreshTokenError, invalid_refresh_token_handler)
+    app.add_exception_handler(DocumentNotFoundError, document_not_found_handler)
+    app.add_exception_handler(DocumentAlreadyExistsError, document_already_exists_handler)
+    app.add_exception_handler(DocumentStateError, document_state_error_handler)
+    app.add_exception_handler(DocumentAccessDeniedError, document_access_denied_error_handler)
 
     api_v1 = APIRouter(prefix="/api/v1")
 
@@ -44,7 +56,5 @@ def create_app():
     api_v1.include_router(auth_router)
     api_v1.include_router(test_router)
     app.include_router(api_v1)
-
-    print('good to go')
 
     return app
