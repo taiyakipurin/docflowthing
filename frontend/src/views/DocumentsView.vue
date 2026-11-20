@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDocuments, type Document } from '../api/documents'
+import { getDocuments, type Document } from '../api/document'
 
 const router = useRouter()
 
@@ -30,11 +30,12 @@ onMounted(async () =>
         {
             errorMessage.value = 'Failed to load documents'
         }
-        finally
-        {
-            isLoading.value = false
-        }
     }
+    finally
+    {
+        isLoading.value = false
+    }
+
 })
 
 const filteredDocuments = computed(() =>
@@ -138,7 +139,7 @@ function formatDate(date: string): string
                     >
                         <td>{{ document.id }}</td>
                         <td>{{ document.title }}</td>
-                        <td>{{ document.author_id }}</td>
+                        <td>{{ document.author_name }}</td>
                         <td>{{ getStatusLabel(document.status) }}</td>
                         <td>{{ formatDate(document.created_at) }}</td>
                     </tr>

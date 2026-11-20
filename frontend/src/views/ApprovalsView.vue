@@ -1,58 +1,46 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import {
+    getDocuments,
+    approveDocumentRequest,
+    rejectDocumentRequest,
+    type Document
+} from '../api/document'
 
-interface ApprovalDocument
-{
-    id: number
-    number: string
-    title: string
-    author: string
-    createdAt: string
-    justification: string
-    description: string
-    servers: string[]
-    status: 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED'
-}
 
-const documents = ref<ApprovalDocument[]>([
-    {
-        id: 1,
-        number: 'DOC-0001',
-        title: 'Обновление Nginx',
-        author: 'Иванов И.И.',
-        createdAt: '05.11.2026 10:30',
-        justification: 'Необходимо обновить Nginx для устранения обнаруженных проблем.',
-        description: 'Обновление Nginx до актуальной версии с последующей проверкой доступности веб-сервисов.',
-        servers: ['web-01', 'web-02'],
-        status: 'PENDING_APPROVAL'
-    },
-    {
-        id: 2,
-        number: 'DOC-0005',
-        title: 'Создание пользователя на сервере',
-        author: 'Петров П.П.',
-        createdAt: '05.11.2026 11:15',
-        justification: 'Необходимо предоставить сотруднику доступ к серверу.',
-        description: 'Создать системную учётную запись с ограниченными привилегиями.',
-        servers: ['db-01'],
-        status: 'PENDING_APPROVAL'
-    },
-    {
-        id: 3,
-        number: 'DOC-0006',
-        title: 'Обновление системных пакетов',
-        author: 'Сидоров С.С.',
-        createdAt: '05.11.2026 12:00',
-        justification: 'Требуется установить актуальные обновления системы.',
-        description: 'Выполнить обновление системных пакетов на выбранных серверах.',
-        servers: ['web-01', 'db-01'],
-        status: 'PENDING_APPROVAL'
-    }
-])
+const documents = ref<Document[]>([])
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const searchQuery = ref('')
-const selectedDocumentId = ref<number | null>(1)
+const selectedDocumentId = ref<number | null>(null)
 const rejectionReason = ref('')
+
+onMounted(async () =>
+{
+    isLoading.value = true
+
+    try
+    {
+        documents.value = await getDocuments()
+
+        if (documents.value.length > 0)
+        {
+            selectedDocumentId.value =  documents.value[0].id
+        }
+    }
+    catch (error)
+    {
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : "An error occurred while loading documents"
+    }
+    finally
+    {
+        isLoading.value = false
+    }
+})
+
 
 const filteredDocuments = computed(() =>
 {
@@ -61,12 +49,12 @@ const filteredDocuments = computed(() =>
     return documents.value.filter(document =>
     {
         const matchesSearch =
-            document.number.toLowerCase().includes(query) ||
+            document.id.toString().includes(query) ||
             document.title.toLowerCase().includes(query) ||
-            document.author.toLowerCase().includes(query)
+            document.author_name.toLowerCase().includes(query)
 
         return matchesSearch &&
-            document.status === 'PENDING_APPROVAL'
+            document.status === 'submitted'
     })
 })
 
@@ -83,46 +71,70 @@ function selectDocument(id: number)
     rejectionReason.value = ''
 }
 
-function approveDocument()
+async function approveDocument()
 {
     if (!selectedDocument.value)
     {
         return
     }
 
-    selectedDocument.value.status = 'APPROVED'
+    const documentId = selectedDocument.value.id
 
-    console.log(
-        'Документ согласован:',
-        selectedDocument.value.number
-    )
+    try
+    {
+        await approveDocumentRequest(documentId)
 
-    selectedDocumentId.value = null
+        documents.value = documents.value.filter(
+            document => document.id !== documentId
+        )
+
+        selectedDocumentId.value = filteredDocuments.value[0]?.id ?? null
+    }
+    catch (error)
+    {
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : 'Произошла ошибка при согласовании документа'
+    }
 }
 
-function rejectDocument()
+async function rejectDocument()
 {
     if (!selectedDocument.value || !rejectionReason.value.trim())
     {
         return
     }
 
-    selectedDocument.value.status = 'REJECTED'
+    const documentId = selectedDocument.value.id
 
-    console.log('Документ отклонён:', {
-        document: selectedDocument.value.number,
-        reason: rejectionReason.value
-    })
+    try
+    {
+        await rejectDocumentRequest(
+            documentId,
+            rejectionReason.value
+        )
 
-    selectedDocumentId.value = null
+        documents.value = documents.value.filter(
+            document => document.id !== documentId
+        )
+
+        selectedDocumentId.value = filteredDocuments.value[0]?.id ?? null
+        rejectionReason.value = ''
+    }
+    catch (error)
+    {
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : 'Произошла ошибка при отклонении документа'
+    }
 }
 
 function getStatusLabel(status: string)
 {
     const statuses: Record<string, string> = {
-        PENDING_APPROVAL: 'На согласовании',
-        APPROVED: 'Согласован',
-        REJECTED: 'Отклонён'
+        submitted: 'На согласовании',
+        approved: 'Согласован',
+        rejected: 'Отклонён'
     }
 
     return statuses[status] ?? status

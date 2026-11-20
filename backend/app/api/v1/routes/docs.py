@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.schemas.approval import RejectionRequest
 from app.schemas.infrastructure_document import DocumentResponse, DocumentCreate, DocumentUpdate
 from app.core.database import get_db
 from app.models import User
@@ -67,10 +68,11 @@ def approve_document(
 @router.post('/{document_id}/reject', response_model=DocumentResponse)
 def reject_document(
     document_id: int,
+    data: RejectionRequest,
     current_user: User = Depends(require_roles('APPROVER')),
     db: Session = Depends(get_db)
 ):
-    return reject_document_service(db, document_id, current_user)
+    return reject_document_service(db, document_id, current_user, data)
 
 
 

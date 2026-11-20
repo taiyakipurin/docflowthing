@@ -3,9 +3,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
 from app.core.database import Base
+# from app.models import InfrastructureDocument
 
 from app.models.associations.user_role import user_roles
-# from app.models.approval_decision import ApprovalDecision
 
 
 class User(Base):
@@ -65,4 +65,8 @@ class User(Base):
 
     audit_logs: Mapped[list['AuditLog']] = relationship(
         back_populates='auditor'
+    )
+
+    documents: Mapped[list['InfrastructureDocument']] = relationship(
+        back_populates='author'
     )

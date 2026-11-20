@@ -27,10 +27,9 @@ from app.core.handlers import (
 from app.api.v1.routes import (
     user_router,
     role_router,
-    auth_router
+    auth_router,
+    doc_router
 )
-
-from app.api.v1.routes.test import router as test_router
 
 def create_app():
     app = FastAPI()
@@ -54,7 +53,7 @@ def create_app():
     api_v1.include_router(user_router)
     api_v1.include_router(role_router)
     api_v1.include_router(auth_router)
-    api_v1.include_router(test_router)
+    api_v1.include_router(doc_router)
     app.include_router(api_v1)
 
     return app

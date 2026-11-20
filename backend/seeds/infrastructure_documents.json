@@ -3,9 +3,11 @@
         "title": "Обновление пакетов веб-серверов",
         "description": "Установить актуальные обновления системных пакетов.",
         "justification": "Необходимо устранить обнаруженные уязвимости и обеспечить стабильную работу веб-сервисов.",
-        "status": "pending_approval",
+        "status": "submitted",
         "author_username": "test1",
-        "submitted_at": "2026-11-05T10:00:00+00:00"
+        "submitted_at": "2026-11-05T10:00:00+00:00",
+        "approved_at": null,
+        "rejected_at": null
     },
     {
         "title": "Установка Nginx",
@@ -13,7 +15,9 @@
         "justification": "Подготовка дополнительного узла для распределения нагрузки.",
         "status": "approved",
         "author_username": "test6",
-        "submitted_at": "2026-11-04T12:30:00+00:00"
+        "submitted_at": "2026-11-04T12:30:00+00:00",
+        "approved_at": "2026-11-04T14:15:00+00:00",
+        "rejected_at": null
     },
     {
         "title": "Создание системной учётной записи",
@@ -21,7 +25,9 @@
         "justification": "Требуется отдельная учётная запись для выполнения операций развёртывания.",
         "status": "draft",
         "author_username": "test8",
-        "submitted_at": null
+        "submitted_at": null,
+        "approved_at": null,
+        "rejected_at": null
     },
     {
         "title": "Обслуживание сервера базы данных",
@@ -29,14 +35,18 @@
         "justification": "Плановое обслуживание серверной инфраструктуры.",
         "status": "rejected",
         "author_username": "test4",
-        "submitted_at": "2026-11-03T09:15:00+00:00"
+        "submitted_at": "2026-11-03T09:15:00+00:00",
+        "approved_at": null,
+        "rejected_at": "2026-11-03T11:20:00+00:00"
     },
     {
         "title": "Настройка системы мониторинга",
         "description": "Установить необходимые компоненты мониторинга.",
         "justification": "Необходимо обеспечить централизованный сбор информации о состоянии серверов.",
-        "status": "completed",
+        "status": "approved",
         "author_username": "test10",
-        "submitted_at": "2026-11-02T14:00:00+00:00"
+        "submitted_at": "2026-11-02T14:00:00+00:00",
+        "approved_at": "2026-11-02T16:30:00+00:00",
+        "rejected_at": null
     }
 ]

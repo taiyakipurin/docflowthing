@@ -60,6 +60,16 @@ class InfrastructureDocument(Base):
         nullable=True
     )
 
+    approved_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True
+    )
+
+    rejected_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True
+    )
+
     servers: Mapped[list['Server']] = relationship(
         'Server',
         secondary=document_servers,
@@ -77,3 +87,11 @@ class InfrastructureDocument(Base):
     execution_acts: Mapped[list['ExecutionAct']] = relationship(
         back_populates='document'
     )
+
+    author: Mapped['User'] = relationship(
+        back_populates='documents'
+    )
+
+    @property
+    def author_name(self) -> str:
+        return self.author.full_name

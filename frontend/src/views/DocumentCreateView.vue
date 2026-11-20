@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { createDocument, submitDocument } from '../api/document'
 
 const router = useRouter()
 
@@ -9,6 +10,8 @@ const justification = ref('')
 const description = ref('')
 const selectedServers = ref<number[]>([])
 const attachments = ref<File[]>([])
+const isSaving = ref(false)
+const errorMessage = ref('')
 
 const servers = [
     { id: 1, hostname: 'web-01', address: '192.168.1.10', os: 'Ubuntu 24.04' },
@@ -40,19 +43,50 @@ function handleFiles(event: Event)
     }
 }
 
-function saveDocument(status: 'DRAFT' | 'PENDING_APPROVAL')
+async function saveDocument(action: 'draft' | 'submitted'): Promise<void>
 {
-    console.log({
-        title: title.value,
-        justification: justification.value,
-        description: description.value,
-        servers: selectedServers.value,
-        attachments: attachments.value,
-        status
-    })
+    if (isSaving.value)
+    {
+        return
+    }
 
-    router.push('/documents')
+    isSaving.value = true
+    errorMessage.value = ''
+
+    try
+    {
+        const document = await createDocument(
+        {
+            title: title.value,
+            justification: justification.value || null,
+            description: description.value || null
+        })
+
+        if (action === 'submit')
+        {
+            await submitDocument(document.id)
+        }
+
+        await router.push('/documents')
+    }
+    catch (error)
+    {
+        if (error instanceof Error)
+        {
+            errorMessage.value = error.message
+        }
+        else
+        {
+            errorMessage.value = 'Failed to save document'
+        }
+    }
+    finally
+    {
+        isSaving.value = false
+    }
 }
+
+
 
 function cancel()
 {
@@ -156,6 +190,10 @@ function cancel()
             </ul>
         </section>
 
+        <p v-if="errorMessage">
+            {{ errorMessage }}
+        </p>
+
         <div class="form-actions">
             <button class="button-secondary" @click="cancel">
                 Отмена
@@ -163,14 +201,16 @@ function cancel()
 
             <button
                 class="button-secondary"
-                @click="saveDocument('DRAFT')"
+                @click="saveDocument('draft')"
+                :disabled="isSaving"
             >
                 Сохранить черновик
             </button>
 
             <button
                 class="button-primary"
-                @click="saveDocument('PENDING_APPROVAL')"
+                @click="saveDocument('submit')"
+                :disabled="isSaving"
             >
                 Отправить на согласование
             </button>

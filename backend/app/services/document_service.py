@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from app.models import InfrastructureDocument, User, ApprovalDecision
+from app.schemas.approval import RejectionRequest
 from app.schemas.infrastructure_document import DocumentResponse, DocumentCreate, DocumentUpdate
 from app.core.exceptions import DocumentNotFoundError, DocumentStateError, DocumentAccessDeniedError
 
@@ -140,6 +141,7 @@ def approve_document(db: Session, document_id: int, current_user: User) -> Docum
     try:
         doc.status = approval_decision.decision
         db.add(approval_decision)
+        doc.approved_at = datetime.now(timezone.utc)
         db.commit()
         db.refresh(doc)
     except Exception:
@@ -148,7 +150,12 @@ def approve_document(db: Session, document_id: int, current_user: User) -> Docum
 
     return DocumentResponse.model_validate(doc)
 
-def reject_document(db: Session, document_id: int, current_user: User) -> DocumentResponse:
+def reject_document(
+    db: Session,
+    document_id: int,
+    current_user: User,
+    data: RejectionRequest
+) -> DocumentResponse:
     doc = db.scalar(
         select(InfrastructureDocument).where(
             InfrastructureDocument.id == document_id
@@ -164,12 +171,14 @@ def reject_document(db: Session, document_id: int, current_user: User) -> Docume
     approval_decision = ApprovalDecision(
         document_id=document_id,
         approver_id=current_user.id,
-        decision='rejected'
+        decision='rejected',
+        reason=data.reason
     )
 
     try:
         doc.status = approval_decision.decision
         db.add(approval_decision)
+        doc.rejected_at = datetime.now(timezone.utc)
         db.commit()
         db.refresh(doc)
     except Exception:
