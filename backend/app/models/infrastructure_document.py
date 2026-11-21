@@ -93,5 +93,9 @@ class InfrastructureDocument(Base):
     )
 
     @property
+    def full_name(self) -> str:
+        return f'{self.author.last_name} {self.author.first_name}'
+
+    @property
     def author_name(self) -> str:
-        return self.author.full_name
+        return self.full_name

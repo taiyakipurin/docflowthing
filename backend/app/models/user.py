@@ -3,10 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
 from app.core.database import Base
-# from app.models import InfrastructureDocument
 
 from app.models.associations.user_role import user_roles
-
 
 class User(Base):
     __tablename__ = 'users'
@@ -28,9 +26,25 @@ class User(Base):
         nullable=False
     )
 
-    full_name: Mapped[str] = mapped_column(
-        String(100),
+    # full_name: Mapped[str] = mapped_column(
+    #     String(100),
+    #     nullable=False
+    # )
+
+    first_name: Mapped[str] = mapped_column(
+        String(50),
         nullable=False
+    )
+
+    last_name: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False
+    )
+
+    email: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        unique=True
     )
 
     is_active: Mapped[bool] = mapped_column(

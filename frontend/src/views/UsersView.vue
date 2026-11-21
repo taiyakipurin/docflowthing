@@ -1,95 +1,99 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import type { UserResponse, RoleResponse } from '../api/types'
+import {
+    getUsers,
+    createUser,
+    updateUser,
+    updateUserRoles
+} from '../api/user'
+import { getRoles } from '../api/role'
 
 type UserRole = 'INITIATOR' | 'APPROVER' | 'SYSADMIN' | 'ADMIN' | 'AUDITOR'
 type UserStatus = 'ACTIVE' | 'BLOCKED'
 
-interface User
-{
-    id: number
-    fullName: string
-    email: string
-    role: UserRole
-    status: UserStatus
-    createdAt: string
-}
-
-const users = ref<User[]>(
-[
-    {
-        id: 1,
-        fullName: 'Иванов Иван Иванович',
-        email: 'ivanov@company.local',
-        role: 'INITIATOR',
-        status: 'ACTIVE',
-        createdAt: '01.10.2026'
-    },
-    {
-        id: 2,
-        fullName: 'Петров Пётр Петрович',
-        email: 'petrov@company.local',
-        role: 'APPROVER',
-        status: 'ACTIVE',
-        createdAt: '01.10.2026'
-    },
-    {
-        id: 3,
-        fullName: 'Сидоров Сергей Сергеевич',
-        email: 'sidorov@company.local',
-        role: 'SYSADMIN',
-        status: 'ACTIVE',
-        createdAt: '03.10.2026'
-    },
-    {
-        id: 4,
-        fullName: 'Администратор системы',
-        email: 'admin@company.local',
-        role: 'ADMIN',
-        status: 'ACTIVE',
-        createdAt: '28.09.2026'
-    },
-    {
-        id: 5,
-        fullName: 'Кузнецова Анна Викторовна',
-        email: 'kuznetsova@company.local',
-        role: 'AUDITOR',
-        status: 'ACTIVE',
-        createdAt: '05.10.2026'
-    },
-    {
-        id: 6,
-        fullName: 'Смирнов Алексей Олегович',
-        email: 'smirnov@company.local',
-        role: 'INITIATOR',
-        status: 'BLOCKED',
-        createdAt: '10.10.2026'
-    }
-])
-
-const roles =
-[
-    { value: 'INITIATOR', label: 'Инициатор' },
-    { value: 'APPROVER', label: 'Согласующий' },
-    { value: 'SYSADMIN', label: 'Системный администратор' },
-    { value: 'ADMIN', label: 'Администратор' },
-    { value: 'AUDITOR', label: 'Аудитор' }
-]
+const users = ref<UserResponse[]>([])
+const roles = ref<RoleResponse[]>([])
+const isLoading = ref(false)
+const isSaving = ref(false)
+const errorMessage = ref('')
 
 const searchQuery = ref('')
 const selectedRole = ref('ALL')
 const selectedStatus = ref('ALL')
 
-const selectedUser = ref<User | null>(users.value[0])
+const selectedUser = ref<UserResponse | null>(null)
 
 const isModalOpen = ref(false)
 const editingUserId = ref<number | null>(null)
 
 const form = ref(
 {
-    fullName: '',
+    username: '',
+    first_name: '',
+    second_name: '',
     email: '',
-    role: 'INITIATOR' as UserRole,
-    status: 'ACTIVE' as UserStatus
+    roles_ids: [] as number[]
+})
+
+onMounted(async () =>
+{
+    isLoading.value = true
+    errorMessage.value = ''
+
+    try
+    {
+        users.value = await getUsers()
+
+        if (users.value.length > 0)
+        {
+            selectedUser.value = users.value[0]
+        }
+    }
+    catch (error)
+    {
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : "An error occurred while loading users"
+    }
+    finally
+    {
+        isLoading.value = false
+    }
+
+})
+
+onMounted(async () =>
+{
+    isLoading.value = true
+    errorMessage.value = ''
+
+    try
+    {
+        const [usersData, rolesData] = await Promise.all(
+        [
+            getUsers(),
+            getRoles()
+        ])
+
+        users.value = usersData
+        roles.value = rolesData
+
+        if (users.value.length > 0)
+        {
+            selectedUser.value = users.value[0]
+        }
+    }
+    catch (error)
+    {
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : 'An error occurred while loading data'
+    }
+    finally
+    {
+        isLoading.value = false
+    }
 })
 
 const filteredUsers = computed(() =>
@@ -98,34 +102,50 @@ const filteredUsers = computed(() =>
 
     return users.value.filter(user =>
     {
+        const fullName =
+            `${user.first_name} ${user.last_name}`.toLowerCase()
+
         const matchesSearch =
-            user.fullName.toLowerCase().includes(query) ||
-            user.email.toLowerCase().includes(query)
+            user.username.toLowerCase().includes(query) ||
+            user.first_name.toLowerCase().includes(query) ||
+            user.last_name.toLowerCase().includes(query) ||
+            user.email.toLowerCase().includes(query) ||
+            fullName.includes(query)
 
         const matchesRole =
             selectedRole.value === 'ALL' ||
-            user.role === selectedRole.value
+            user.roles.some(role => role.code === selectedRole.value)
 
         const matchesStatus =
             selectedStatus.value === 'ALL' ||
-            user.status === selectedStatus.value
+            (selectedStatus.value === 'ACTIVE' && user.is_active) ||
+            (selectedStatus.value === 'BLOCKED' && !user.is_active)
 
         return matchesSearch && matchesRole && matchesStatus
     })
 })
 
-function getRoleLabel(role: UserRole)
+function getFullName(user: UserResponse): string
 {
-    const item = roles.find(item => item.value === role)
-    return item?.label ?? role
+    return `${user.first_name} ${user.last_name}`
 }
 
-function getStatusLabel(status: UserStatus)
+function getRoleLabel(userRoles: RoleResponse[]): string
 {
-    return status === 'ACTIVE' ? 'Активен' : 'Заблокирован'
+    return userRoles.map(role => role.name).join(', ')
 }
 
-function selectUser(user: User)
+function getStatusLabel(isActive: boolean): string
+{
+    return isActive ? 'Активен' : 'Заблокирован'
+}
+
+function formatDate(date: string): string
+{
+    return new Date(date).toLocaleDateString('ru-RU')
+}
+
+function selectUser(user: UserResponse)
 {
     selectedUser.value = user
 }
@@ -136,89 +156,138 @@ function openCreateModal()
 
     form.value =
     {
-        fullName: '',
+        username: '',
+        password: '',
+        first_name: '',
+        last_name: '',
         email: '',
-        role: 'INITIATOR',
-        status: 'ACTIVE'
+        roles_ids: []
     }
 
     isModalOpen.value = true
 }
 
-function openEditModal(user: User)
+function openEditModal(user: UserResponse)
 {
     editingUserId.value = user.id
 
     form.value =
     {
-        fullName: user.fullName,
+        username: user.username,
+        password: '',
+        first_name: user.first_name,
+        last_name: user.last_name,
         email: user.email,
-        role: user.role,
-        status: user.status
+        roles_ids: user.roles.map(role => role.id)
     }
 
     isModalOpen.value = true
 }
 
-function saveUser()
+async function saveUser()
 {
-    const fullName = form.value.fullName.trim()
-    const email = form.value.email.trim()
-
-    if (!fullName || !email)
+    if (form.value.roles_ids.length === 0)
     {
+        errorMessage.value = 'Необходимо назначить хотя бы одну роль.'
         return
     }
 
-    const emailExists = users.value.some(user =>
-        user.email.toLowerCase() === email.toLowerCase() &&
-        user.id !== editingUserId.value
-    )
+    isSaving.value = true
+    errorMessage.value = ''
 
-    if (emailExists)
+    try
     {
-        alert('Пользователь с таким адресом электронной почты уже существует.')
-        return
-    }
+        let savedUser: UserResponse
 
-    if (editingUserId.value !== null)
-    {
-        const user = users.value.find(
-            user => user.id === editingUserId.value
+        if (editingUserId.value !== null)
+        {
+            const userId = editingUserId.value
+
+            await updateUser(userId,
+            {
+                first_name: form.value.first_name,
+                last_name: form.value.last_name,
+                email: form.value.email
+            })
+
+            savedUser = await updateUserRoles(userId,
+            {
+                roles_ids: form.value.roles_ids
+            })
+        }
+        else
+        {
+            savedUser = await createUser(
+            {
+                username: form.value.username,
+                password: form.value.password,
+                first_name: form.value.first_name,
+                last_name: form.value.last_name,
+                email: form.value.email
+            })
+
+            savedUser = await updateUserRoles(savedUser.id,
+            {
+                roles_ids: form.value.roles_ids
+            })
+        }
+
+        const existingIndex = users.value.findIndex(
+            user => user.id === savedUser.id
         )
 
-        if (user)
+        if (existingIndex !== -1)
         {
-            user.fullName = fullName
-            user.email = email
-            user.role = form.value.role
-            user.status = form.value.status
-            selectedUser.value = user
+            users.value[existingIndex] = savedUser
         }
+        else
+        {
+            users.value.unshift(savedUser)
+        }
+
+        selectedUser.value = savedUser
+        isModalOpen.value = false
     }
-    else
+    catch (error)
     {
-        const newUser: User =
-        {
-            id: Math.max(0, ...users.value.map(user => user.id)) + 1,
-            fullName,
-            email,
-            role: form.value.role,
-            status: form.value.status,
-            createdAt: new Date().toLocaleDateString('ru-RU')
-        }
-
-        users.value.unshift(newUser)
-        selectedUser.value = newUser
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : 'Не удалось сохранить пользователя'
     }
-
-    isModalOpen.value = false
+    finally
+    {
+        isSaving.value = false
+    }
 }
 
-function toggleUserStatus(user: User)
+async function toggleUserStatus(user: UserResponse)
 {
-    user.status = user.status === 'ACTIVE' ? 'BLOCKED' : 'ACTIVE'
-    selectedUser.value = user
+    errorMessage.value = ''
+
+    try
+    {
+        const updatedUser = await updateUser(user.id,
+        {
+            is_active: !user.is_active
+        })
+
+        const index = users.value.findIndex(
+            item => item.id === updatedUser.id
+        )
+
+        if (index !== -1)
+        {
+            users.value[index] = updatedUser
+        }
+
+        selectedUser.value = updatedUser
+    }
+    catch (error)
+    {
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : 'Не удалось изменить статус пользователя'
+    }
 }
 </script>
 
@@ -235,6 +304,14 @@ function toggleUserStatus(user: User)
             </button>
         </div>
 
+        <p v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+        </p>
+
+        <p v-if="isLoading">
+            Загрузка пользователей...
+        </p>
+
         <div class="filters">
             <input
                 v-model="searchQuery"
@@ -246,10 +323,10 @@ function toggleUserStatus(user: User)
                 <option value="ALL">Все роли</option>
                 <option
                     v-for="role in roles"
-                    :key="role.value"
-                    :value="role.value"
+                    :key="role.id"
+                    :value="role.code"
                 >
-                    {{ role.label }}
+                    {{ role.name }}
                 </option>
             </select>
 
@@ -288,18 +365,18 @@ function toggleUserStatus(user: User)
                                 }"
                                 @click="selectUser(user)"
                             >
-                                <td>{{ user.fullName }}</td>
+                                <td>{{ getFullName(user) }}</td>
                                 <td>{{ user.email }}</td>
-                                <td>{{ getRoleLabel(user.role) }}</td>
+                                <td>{{ getRoleLabel(user.roles) }}</td>
                                 <td>
                                     <span
                                         class="status"
-                                        :class="user.status.toLowerCase()"
+                                        :class="user.is_active ? 'active' : 'blocked'"
                                     >
-                                        {{ getStatusLabel(user.status) }}
+                                        {{ getStatusLabel(user.is_active) }}
                                     </span>
                                 </td>
-                                <td>{{ user.createdAt }}</td>
+                                <td>{{ formatDate(user.created_at) }}</td>
                             </tr>
 
                             <tr v-if="filteredUsers.length === 0">
@@ -320,7 +397,7 @@ function toggleUserStatus(user: User)
                 <template v-if="selectedUser">
                     <div class="user-details">
                         <div class="user-name">
-                            {{ selectedUser.fullName }}
+                            {{ getFullName(selectedUser) }}
                         </div>
 
                         <div class="detail-field">
@@ -329,27 +406,32 @@ function toggleUserStatus(user: User)
                         </div>
 
                         <div class="detail-field">
+                            <span>Имя пользователя</span>
+                            <strong>{{ selectedUser.username }}</strong>
+                        </div>
+
+                        <div class="detail-field">
                             <span>Электронная почта</span>
                             <strong>{{ selectedUser.email }}</strong>
                         </div>
 
                         <div class="detail-field">
-                            <span>Роль</span>
-                            <strong>{{ getRoleLabel(selectedUser.role) }}</strong>
+                            <span>Ролb</span>
+                            <strong>{{ getRoleLabel(selectedUser.roles) }}</strong>
                         </div>
 
                         <div class="detail-field">
                             <span>Статус учётной записи</span>
                             <strong
-                                :class="selectedUser.status.toLowerCase()"
+                                :class="selectedUser.is_active ? 'active' : 'blocked'"
                             >
-                                {{ getStatusLabel(selectedUser.status) }}
+                                {{ getStatusLabel(selectedUser.is_active) }}
                             </strong>
                         </div>
 
                         <div class="detail-field">
                             <span>Дата регистрации</span>
-                            <strong>{{ selectedUser.createdAt }}</strong>
+                            <strong>{{ formatDate(selectedUser.created_at) }}</strong>
                         </div>
                     </div>
 
@@ -366,7 +448,7 @@ function toggleUserStatus(user: User)
                             @click="toggleUserStatus(selectedUser)"
                         >
                             {{
-                                selectedUser.status === 'ACTIVE'
+                                selectedUser.is_active
                                     ? 'Заблокировать'
                                     : 'Активировать'
                             }}
@@ -405,12 +487,51 @@ function toggleUserStatus(user: User)
 
                 <form @submit.prevent="saveUser">
                     <div class="form-field">
-                        <label for="fullName">ФИО</label>
+                        <label for="username">Имя пользователя</label>
                         <input
-                            id="fullName"
-                            v-model="form.fullName"
+                            id="username"
+                            v-model="form.username"
                             type="text"
-                            placeholder="Иванов Иван Иванович"
+                            minlength="3"
+                            maxlength="100"
+                            :disabled="editingUserId !== null"
+                            required
+                        >
+                    </div>
+
+                    <div
+                        v-if="editingUserId === null"
+                        class="form-field"
+                    >
+                        <label for="password">Пароль</label>
+                        <input
+                            id="password"
+                            v-model="form.password"
+                            type="password"
+                            minlength="8"
+                            maxlength="120"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="firstName">Имя</label>
+                        <input
+                            id="firstName"
+                            v-model="form.first_name"
+                            type="text"
+                            maxlength="50"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="lastName">Фамилия</label>
+                        <input
+                            id="lastName"
+                            v-model="form.last_name"
+                            type="text"
+                            maxlength="50"
                             required
                         >
                     </div>
@@ -421,29 +542,26 @@ function toggleUserStatus(user: User)
                             id="email"
                             v-model="form.email"
                             type="email"
-                            placeholder="user@company.local"
+                            maxlength="100"
                             required
                         >
                     </div>
 
                     <div class="form-field">
-                        <label for="role">Роль</label>
-                        <select id="role" v-model="form.role">
+                        <label for="roles">Роли</label>
+                        <select
+                            id="roles"
+                            v-model="form.roles_ids"
+                            multiple
+                            required
+                        >
                             <option
                                 v-for="role in roles"
-                                :key="role.value"
-                                :value="role.value"
+                                :key="role.id"
+                                :value="role.id"
                             >
-                                {{ role.label }}
+                                {{ role.name }}
                             </option>
-                        </select>
-                    </div>
-
-                    <div class="form-field">
-                        <label for="status">Статус учётной записи</label>
-                        <select id="status" v-model="form.status">
-                            <option value="ACTIVE">Активен</option>
-                            <option value="BLOCKED">Заблокирован</option>
                         </select>
                     </div>
 
@@ -456,8 +574,12 @@ function toggleUserStatus(user: User)
                             Отмена
                         </button>
 
-                        <button type="submit" class="primary-button">
-                            Сохранить
+                        <button
+                            type="submit"
+                            class="primary-button"
+                            :disabled="isSaving"
+                        >
+                            {{ isSaving ? 'Сохранение...' : 'Сохранить' }}
                         </button>
                     </div>
                 </form>
@@ -494,6 +616,8 @@ function toggleUserStatus(user: User)
     color: var(--color-muted);
     font-size: 14px;
 }
+
+
 
 .filters
 {
@@ -788,10 +912,10 @@ tbody tr.selected
 }
 
 .form-field input,
-.form-field select
+.form-field select[multiple]
 {
     width: 100%;
-    min-height: 38px;
+    min-height: 110px;
     background: white;
 }
 
@@ -802,6 +926,12 @@ tbody tr.selected
     gap: 8px;
     padding-top: 10px;
     border-top: 1px solid var(--color-border);
+}
+
+.error-message
+{
+    color: #963d3d;
+    font-size: 13px;
 }
 
 @media (max-width: 1200px)

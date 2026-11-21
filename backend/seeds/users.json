@@ -1,112 +1,144 @@
 [
   {
       "username": "test1",
-      "full_name": "John Jefferson",
+      "first_name": "John",
+      "last_name": "Jefferson",
+      "email": "john.jefferson@company.local",
       "is_active": true,
       "roles": ["INITIATOR"],
       "password_hash": "-9020349482"
   },
   {
       "username": "test2",
-      "full_name": "Killian Murphy",
+      "first_name": "Killian",
+      "last_name": "Murphy",
+      "email": "killian.murphy@company.local",
       "is_active": true,
       "roles": ["APPROVER"],
       "password_hash": "{D{S{DS{DS{DS{}"
   },
   {
       "username": "test3",
-      "full_name": "Edward Norton",
+      "first_name": "Edward",
+      "last_name": "Norton",
+      "email": "edward.norton@company.local",
       "is_active": true,
       "roles": ["ADMIN"],
       "password_hash": "MD)!)@!M)!@)M@!I)"
   },
   {
       "username": "test4",
-      "full_name": "Osamu Dazai",
+      "first_name": "Osamu",
+      "last_name": "Dazai",
+      "email": "osamu.dazai@company.local",
       "is_active": true,
       "roles": ["INITIATOR", "APPROVER"],
       "password_hash": "D!@_DOM!@"
   },
   {
       "username": "test5",
-      "full_name": "Cirno Thestrongest",
+      "first_name": "Cirno",
+      "last_name": "Thestrongest",
+      "email": "cirno.thestrongest@company.local",
       "is_active": false,
       "roles": ["INITIATOR"],
       "password_hash": "999999999"
   },
   {
       "username": "test6",
-      "full_name": "Robert Paulsen",
+      "first_name": "Robert",
+      "last_name": "Paulsen",
+      "email": "robert.paulsen@company.local",
       "is_active": true,
       "roles": ["INITIATOR", "SYSADMIN"],
       "password_hash": "d10[SMODMODSMOSDMODS"
   },
   {
       "username": "test7",
-      "full_name": "Soseki Natsume",
+      "first_name": "Soseki",
+      "last_name": "Natsume",
+      "email": "soseki.natsume@company.local",
       "is_active": true,
       "roles": ["APPROVER", "AUDITOR"],
       "password_hash": "PDM!@O@!"
   },
   {
       "username": "test8",
-      "full_name": "Ryunosuke Akutagawa",
+      "first_name": "Ryunosuke",
+      "last_name": "Akutagawa",
+      "email": "ryunosuke.akutagawa@company.local",
       "is_active": true,
       "roles": ["SYSADMIN"],
       "password_hash": ">D!@PD>@{{D"
   },
   {
       "username": "test9",
-      "full_name": "Abe Kobo",
+      "first_name": "Abe",
+      "last_name": "Kobo",
+      "email": "abe.kobo@company.local",
       "is_active": true,
       "roles": ["AUDITOR"],
       "password_hash": "<D_@!_!}@O>"
   },
   {
       "username": "test10",
-      "full_name": "Anton Chigurh",
+      "first_name": "Anton",
+      "last_name": "Chigurh",
+      "email": "anton.chigurh@company.local",
       "is_active": true,
       "roles": ["INITIATOR", "APPROVER"],
       "password_hash": "n_D!@U(!@D_(U!@"
   },
   {
       "username": "test11",
-      "full_name": "Herman Melville",
+      "first_name": "Herman",
+      "last_name": "Melville",
+      "email": "herman.melville@company.local",
       "is_active": true,
       "roles": ["ADMIN", "AUDITOR"],
       "password_hash": "d1mp-2od122"
   },
   {
       "username": "test12",
-      "full_name": "Elliot Alderson",
+      "first_name": "Elliot",
+      "last_name": "Alderson",
+      "email": "elliot.alderson@company.local",
       "is_active": true,
       "roles": ["SYSADMIN", "APPROVER"],
       "password_hash": "d10[1j20e1n21i2"
   },
   {
       "username": "test13",
-      "full_name": "Killmeb Aby",
+      "first_name": "Aby",
+      "last_name": "Killmeb",
+      "email": "killmeb.aby@company.local",
       "is_active": false,
       "roles": ["INITIATOR", "AUDITOR"],
       "password_hash": "d10[j12d12"
   },
   {
       "username": "test14",
-      "full_name": "Thomas Anderson",
+      "first_name": "Thomas",
+      "last_name": "Anderson",
+      "email": "thomas.anderson@company.local",
       "is_active": true,
       "roles": ["ADMIN", "SYSADMIN"],
       "password_hash": "d10[j123122"
   },
   {
       "username": "test15",
-      "full_name": "John Milton",
+      "first_name": "John",
+      "last_name": "Milton",
+      "email": "john.milton@company.local",
       "is_active": true,
       "roles": ["INITIATOR", "APPROVER", "AUDITOR"],
       "password_hash": "NDKSNDYSHDQBPWHIBpi8"
   },
   {
       "username": "miko",
-      "full_name": "Hakurei Reimu",
+      "first_name": "Reimu",
+      "last_name": "Hakurei",
+      "email": "reimu.hakurei@company.local",
       "is_active": true,
       "roles": ["ADMIN"],
       "password_hash": "$2b$12$TgarNPRnsTzY/hs1bsVJwOgjDmZrSesLYmYzHQ0t8RF4qpN.ohWl2"

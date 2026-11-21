@@ -58,9 +58,11 @@ def seed_users(session):
 
             session.add(existing_user)
 
-        existing_user.full_name = user_data['full_name']
+        existing_user.email = user_data['email']
         existing_user.is_active = user_data['is_active']
         existing_user.password_hash = user_data['password_hash']
+        existing_user.first_name = user_data['first_name']
+        existing_user.last_name = user_data['last_name']
         existing_user.roles = user_roles
 
 def seed_servers(session):

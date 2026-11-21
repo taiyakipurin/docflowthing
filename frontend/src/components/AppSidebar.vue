@@ -83,15 +83,20 @@ function isActive(path: string): boolean
 <style scoped>
 .sidebar
 {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    flex: 0 0 var(--sidebar-width);
     width: var(--sidebar-width);
     min-width: var(--sidebar-width);
     height: 100vh;
 
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-
     background: var(--color-sidebar);
     border-right: 1px solid var(--color-border);
+    overflow: hidden;
 }
 
 .sidebar-brand
@@ -120,6 +125,8 @@ function isActive(path: string): boolean
 .sidebar-navigation
 {
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     padding: 12px 8px;
 }
 
