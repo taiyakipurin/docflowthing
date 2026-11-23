@@ -9,7 +9,9 @@ from app.core.exceptions import (
     DocumentNotFoundError,
     DocumentAlreadyExistsError,
     DocumentStateError,
-    DocumentAccessDeniedError
+    DocumentAccessDeniedError,
+    ServerNotFoundError,
+    ServerAccessDeniedError
 )
 
 from app.core.handlers import (
@@ -21,14 +23,17 @@ from app.core.handlers import (
     document_not_found_handler,
     document_already_exists_handler,
     document_state_error_handler,
-    document_access_denied_error_handler
+    document_access_denied_error_handler,
+    server_not_found_handler,
+    server_access_denied_handler
 )
 
 from app.api.v1.routes import (
     user_router,
     role_router,
     auth_router,
-    doc_router
+    doc_router,
+    server_router
 )
 
 def create_app():
@@ -43,6 +48,8 @@ def create_app():
     app.add_exception_handler(DocumentAlreadyExistsError, document_already_exists_handler)
     app.add_exception_handler(DocumentStateError, document_state_error_handler)
     app.add_exception_handler(DocumentAccessDeniedError, document_access_denied_error_handler)
+    app.add_exception_handler(ServerNotFoundError, server_not_found_handler)
+    app.add_exception_handler(ServerAccessDeniedError, server_access_denied_handler)
 
     api_v1 = APIRouter(prefix="/api/v1")
 
@@ -54,6 +61,7 @@ def create_app():
     api_v1.include_router(role_router)
     api_v1.include_router(auth_router)
     api_v1.include_router(doc_router)
+    api_v1.include_router(server_router)
     app.include_router(api_v1)
 
     return app

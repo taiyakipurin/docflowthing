@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, String, Text, DateTime, func
+from sqlalchemy import BigInteger, String, Text, DateTime, func, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -26,14 +26,44 @@ class Server(Base):
         nullable=False
     )
 
-    description: Mapped[str] = mapped_column(
+    server_type: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False
+    )
+
+    os: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False
+    )
+
+    os_version: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True
+    )
+
+    environment: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True
+    )
+
+    cpu: Mapped[str | None] = mapped_column(
+        Integer,
+        nullable=True
+    )
+
+    ram: Mapped[str | None] = mapped_column(
+        Integer,
+        nullable=True
+    )
+
+    description: Mapped[str | None] = mapped_column(
         Text,
         nullable=True
     )
 
     status: Mapped[str] = mapped_column(
         String(30),
-        default='active',
+        default='ACTIVE',
         nullable=False
     )
 

@@ -1,118 +1,93 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
-type ServerStatus = 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE'
-type ServerType = 'WEB' | 'DATABASE' | 'APPLICATION' | 'OTHER'
+import {
+    getServers,
+    createServer,
+    updateServer
+} from '../api/server'
 
-interface Server
+import type {
+    ServerResponse,
+    ServerCreate,
+    ServerUpdate,
+    ServerType,
+    ServerStatus,
+    ServerEnvironment
+} from '../api/types'
+
+interface ServerForm
 {
-    id: number
     hostname: string
-    address: string
-    type: ServerType
+    ip_address: string
+    server_type: ServerType
     os: string
-    osVersion: string
-    environment: string
+    os_version: string
+    environment: ServerEnvironment | null
     status: ServerStatus
     description: string
-    cpu: number
-    ram: number
-    createdAt: string
+    cpu: number | null
+    ram: number | null
 }
 
-const servers = ref<Server[]>([
-    {
-        id: 1,
-        hostname: 'web-01',
-        address: '192.168.1.10',
-        type: 'WEB',
-        os: 'Ubuntu',
-        osVersion: '24.04 LTS',
-        environment: 'PRODUCTION',
-        status: 'ACTIVE',
-        description: 'Основной веб-сервер предприятия.',
-        cpu: 4,
-        ram: 8,
-        createdAt: '12.08.2026'
-    },
-    {
-        id: 2,
-        hostname: 'web-02',
-        address: '192.168.1.11',
-        type: 'WEB',
-        os: 'Ubuntu',
-        osVersion: '24.04 LTS',
-        environment: 'PRODUCTION',
-        status: 'ACTIVE',
-        description: 'Дополнительный веб-сервер.',
-        cpu: 4,
-        ram: 8,
-        createdAt: '12.08.2026'
-    },
-    {
-        id: 3,
-        hostname: 'db-01',
-        address: '192.168.1.20',
-        type: 'DATABASE',
-        os: 'Debian',
-        osVersion: '12',
-        environment: 'PRODUCTION',
-        status: 'ACTIVE',
-        description: 'Основной сервер баз данных.',
-        cpu: 8,
-        ram: 32,
-        createdAt: '15.08.2026'
-    },
-    {
-        id: 4,
-        hostname: 'app-01',
-        address: '192.168.1.30',
-        type: 'APPLICATION',
-        os: 'Ubuntu',
-        osVersion: '22.04 LTS',
-        environment: 'TEST',
-        status: 'MAINTENANCE',
-        description: 'Сервер тестового окружения.',
-        cpu: 4,
-        ram: 16,
-        createdAt: '20.08.2026'
-    },
-    {
-        id: 5,
-        hostname: 'backup-01',
-        address: '192.168.1.40',
-        type: 'OTHER',
-        os: 'Debian',
-        osVersion: '12',
-        environment: 'PRODUCTION',
-        status: 'INACTIVE',
-        description: 'Сервер резервного копирования.',
-        cpu: 4,
-        ram: 16,
-        createdAt: '25.08.2026'
-    }
-])
+const servers = ref<ServerResponse[]>([])
 
 const searchQuery = ref('')
-const selectedType = ref('')
-const selectedStatus = ref('')
-const selectedServerId = ref<number | null>(1)
+const selectedType = ref<ServerType | ''>('')
+const selectedStatus = ref<ServerStatus | ''>('')
+const selectedServerId = ref<number | null>(null)
 
 const showForm = ref(false)
 const editingServerId = ref<number | null>(null)
 
-const form = ref({
+const isLoading = ref(false)
+const isSaving = ref(false)
+const errorMessage = ref('')
+
+const form = ref<ServerForm>({
     hostname: '',
-    address: '',
-    type: 'WEB' as ServerType,
+    ip_address: '',
+    server_type: 'WEB',
     os: 'Ubuntu',
-    osVersion: '',
+    os_version: '',
     environment: 'PRODUCTION',
-    status: 'ACTIVE' as ServerStatus,
+    status: 'ACTIVE',
     description: '',
     cpu: 4,
     ram: 8
 })
+
+async function loadServers()
+{
+    isLoading.value = true
+    errorMessage.value = ''
+
+    try
+    {
+        servers.value = await getServers()
+
+        if (servers.value.length > 0)
+        {
+            selectedServerId.value = servers.value[0].id
+        }
+        else
+        {
+            selectedServerId.value = null
+        }
+    }
+    catch (error)
+    {
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : 'Не удалось загрузить список серверов.'
+    }
+    finally
+    {
+        isLoading.value = false
+    }
+}
+
+onMounted(loadServers)
 
 const filteredServers = computed(() =>
 {
@@ -122,14 +97,16 @@ const filteredServers = computed(() =>
     {
         const matchesSearch =
             server.hostname.toLowerCase().includes(query) ||
-            server.address.toLowerCase().includes(query) ||
+            server.ip_address.toLowerCase().includes(query) ||
             server.os.toLowerCase().includes(query)
 
         const matchesType =
-            !selectedType.value || server.type === selectedType.value
+            !selectedType.value ||
+            server.server_type === selectedType.value
 
         const matchesStatus =
-            !selectedStatus.value || server.status === selectedStatus.value
+            !selectedStatus.value ||
+            server.status === selectedStatus.value
 
         return matchesSearch && matchesType && matchesStatus
     })
@@ -165,25 +142,35 @@ function getStatusLabel(status: ServerStatus)
     return labels[status]
 }
 
-function getEnvironmentLabel(environment: string)
+function getEnvironmentLabel(environment: ServerEnvironment | null)
 {
-    const labels: Record<string, string> = {
+    if (!environment)
+    {
+        return 'Не указано'
+    }
+
+    const labels: Record<ServerEnvironment, string> = {
         PRODUCTION: 'Продуктивное',
         TEST: 'Тестовое',
         DEVELOPMENT: 'Разработка'
     }
 
-    return labels[environment] ?? environment
+    return labels[environment]
+}
+
+function formatDate(value: string)
+{
+    return new Date(value).toLocaleString('ru-RU')
 }
 
 function resetForm()
 {
     form.value = {
         hostname: '',
-        address: '',
-        type: 'WEB',
+        ip_address: '',
+        server_type: 'WEB',
         os: 'Ubuntu',
-        osVersion: '',
+        os_version: '',
         environment: 'PRODUCTION',
         status: 'ACTIVE',
         description: '',
@@ -196,23 +183,25 @@ function resetForm()
 
 function openCreateForm()
 {
+    errorMessage.value = ''
     resetForm()
     showForm.value = true
 }
 
-function openEditForm(server: Server)
+function openEditForm(server: ServerResponse)
 {
+    errorMessage.value = ''
     editingServerId.value = server.id
 
     form.value = {
         hostname: server.hostname,
-        address: server.address,
-        type: server.type,
+        ip_address: server.ip_address,
+        server_type: server.server_type,
         os: server.os,
-        osVersion: server.osVersion,
+        os_version: server.os_version ?? '',
         environment: server.environment,
         status: server.status,
-        description: server.description,
+        description: server.description ?? '',
         cpu: server.cpu,
         ram: server.ram
     }
@@ -220,49 +209,92 @@ function openEditForm(server: Server)
     showForm.value = true
 }
 
-function saveServer()
+async function saveServer()
 {
     if (
         !form.value.hostname.trim() ||
-        !form.value.address.trim() ||
-        !form.value.osVersion.trim()
+        !form.value.ip_address.trim() ||
+        !form.value.os.trim()
     )
     {
         return
     }
 
-    if (editingServerId.value !== null)
-    {
-        const server = servers.value.find(
-            item => item.id === editingServerId.value
-        )
+    isSaving.value = true
+    errorMessage.value = ''
 
-        if (server)
+    try
+    {
+        if (editingServerId.value !== null)
         {
-            Object.assign(server, form.value)
-            selectedServerId.value = server.id
+            const updateData: ServerUpdate = {
+                hostname: form.value.hostname,
+                ip_address: form.value.ip_address,
+                server_type: form.value.server_type,
+                os: form.value.os,
+                os_version: form.value.os_version || null,
+                environment: form.value.environment,
+                status: form.value.status,
+                description: form.value.description || null,
+                cpu: form.value.cpu,
+                ram: form.value.ram
+            }
+
+            const updatedServer = await updateServer(
+                editingServerId.value,
+                updateData
+            )
+
+            const index = servers.value.findIndex(
+                server => server.id === updatedServer.id
+            )
+
+            if (index !== -1)
+            {
+                servers.value[index] = updatedServer
+            }
+
+            selectedServerId.value = updatedServer.id
         }
+        else
+        {
+            const createData: ServerCreate = {
+                hostname: form.value.hostname,
+                ip_address: form.value.ip_address,
+                server_type: form.value.server_type,
+                os: form.value.os,
+                os_version: form.value.os_version || null,
+                environment: form.value.environment,
+                description: form.value.description || null,
+                cpu: form.value.cpu,
+                ram: form.value.ram
+            }
+
+            const newServer = await createServer(createData)
+
+            servers.value.push(newServer)
+            selectedServerId.value = newServer.id
+        }
+
+        showForm.value = false
+        resetForm()
     }
-    else
+    catch (error)
     {
-        const id = Math.max(0, ...servers.value.map(server => server.id)) + 1
-
-        servers.value.push({
-            id,
-            ...form.value,
-            createdAt: new Date().toLocaleDateString('ru-RU')
-        })
-
-        selectedServerId.value = id
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : 'Не удалось сохранить сервер.'
     }
-
-    showForm.value = false
-    resetForm()
+    finally
+    {
+        isSaving.value = false
+    }
 }
 
 function cancelForm()
 {
     showForm.value = false
+    errorMessage.value = ''
     resetForm()
 }
 </script>
@@ -279,6 +311,12 @@ function cancelForm()
                 Добавить сервер
             </button>
         </div>
+
+        <p v-if="isLoading">Загрузка серверов...</p>
+
+        <p v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+        </p>
 
         <section class="filters-section">
             <input
@@ -331,15 +369,15 @@ function cancelForm()
                             @click="selectedServerId = server.id"
                         >
                             <td>{{ server.hostname }}</td>
-                            <td>{{ server.address }}</td>
-                            <td>{{ getTypeLabel(server.type) }}</td>
-                            <td>{{ server.os }} {{ server.osVersion }}</td>
+                            <td>{{ server.ip_address }}</td>
+                            <td>{{ getTypeLabel(server.server_type) }}</td>
+                            <td>{{ server.os }} {{ server.os_version }}</td>
                             <td>
                                 {{ getStatusLabel(server.status) }}
                             </td>
                         </tr>
 
-                        <tr v-if="!filteredServers.length">
+                        <tr v-if="!isLoading && !filteredServers.length">
                             <td colspan="5" class="empty-row">
                                 Серверы не найдены.
                             </td>
@@ -364,18 +402,18 @@ function cancelForm()
                     <div class="details-content">
                         <div class="detail-row">
                             <span>IP-адрес</span>
-                            <strong>{{ selectedServer.address }}</strong>
+                            <strong>{{ selectedServer.ip_address }}</strong>
                         </div>
 
                         <div class="detail-row">
                             <span>Тип</span>
-                            <strong>{{ getTypeLabel(selectedServer.type) }}</strong>
+                            <strong>{{ getTypeLabel(selectedServer.server_type) }}</strong>
                         </div>
 
                         <div class="detail-row">
                             <span>Операционная система</span>
                             <strong>
-                                {{ selectedServer.os }} {{ selectedServer.osVersion }}
+                                {{ selectedServer.os }} {{ selectedServer.os_version }}
                             </strong>
                         </div>
 
@@ -395,17 +433,17 @@ function cancelForm()
 
                         <div class="detail-row">
                             <span>Процессор</span>
-                            <strong>{{ selectedServer.cpu }} vCPU</strong>
+                            <strong>{{ selectedServer.cpu ?? 'Не указано' }} vCPU</strong>
                         </div>
 
                         <div class="detail-row">
                             <span>Оперативная память</span>
-                            <strong>{{ selectedServer.ram }} GB</strong>
+                            <strong>{{ selectedServer.ram !== null ? `${selectedServer.ram} GB` : 'Не указано' }} GB</strong>
                         </div>
 
                         <div class="detail-row">
                             <span>Дата регистрации</span>
-                            <strong>{{ selectedServer.createdAt }}</strong>
+                            <strong>{{ formatDate(selectedServer.created_at) }}</strong>
                         </div>
 
                         <div class="description-block">
@@ -448,14 +486,14 @@ function cancelForm()
                             <label for="address">IP-адрес</label>
                             <input
                                 id="address"
-                                v-model="form.address"
+                                v-model="form.ip_address"
                                 required
                             >
                         </div>
 
                         <div class="form-group">
                             <label for="type">Тип сервера</label>
-                            <select id="type" v-model="form.type">
+                            <select id="type" v-model="form.server_type">
                                 <option value="WEB">Веб-сервер</option>
                                 <option value="DATABASE">Сервер БД</option>
                                 <option value="APPLICATION">Сервер приложений</option>
@@ -478,8 +516,7 @@ function cancelForm()
                             <label for="os-version">Версия ОС</label>
                             <input
                                 id="os-version"
-                                v-model="form.osVersion"
-                                required
+                                v-model="form.os_version"
                             >
                         </div>
 
@@ -492,7 +529,7 @@ function cancelForm()
                             </select>
                         </div>
 
-                        <div class="form-group">
+                        <div v-if="editingServerId !== null" class="form-group">
                             <label for="status">Состояние</label>
                             <select id="status" v-model="form.status">
                                 <option value="ACTIVE">Активен</option>
@@ -542,8 +579,12 @@ function cancelForm()
                             Отмена
                         </button>
 
-                        <button type="submit" class="button-primary">
-                            Сохранить
+                        <button
+                            type="submit"
+                            class="button-primary"
+                            :disabled="isSaving"
+                        >
+                            {{ isSaving ? 'Сохранение...' : 'Сохранить' }}
                         </button>
                     </div>
                 </form>
@@ -853,5 +894,14 @@ tbody tr.selected
     justify-content: flex-end;
     gap: 10px;
     margin-top: 20px;
+}
+
+.error-message
+{
+    margin-bottom: 16px;
+    padding: 10px;
+    color: #a12626;
+    background: #fceeee;
+    border: 1px solid #e5baba;
 }
 </style>

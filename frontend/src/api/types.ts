@@ -38,3 +38,47 @@ export interface UserRolesUpdate
 {
     roles_ids: number[]
 }
+
+
+export interface ServerResponse
+{
+    id: number
+    hostname: string
+    ip_address: string
+    server_type?: string | null
+    os?: string | null
+    os_version?: string | null
+    environment?: string | null
+    cpu?: int | null
+    ram?: int | null
+    description?: string | null
+    status: string
+    created_at: string
+}
+
+export interface ServerCreate
+{
+    hostname: string
+    ip_address: string
+    server_type?: string | null
+    os?: string | null
+    os_version?: string | null
+    environment?: string | null
+    cpu?: number | null
+    ram?: number | null
+    description?: string | null
+}
+
+export interface ServerUpdate
+{
+    hostname?: string
+    ip_address?: string
+    server_type?: string | null
+    os?: string | null
+    os_version?: string | null
+    environment?: string | null
+    cpu?: number | null
+    ram?: number | null
+    description?: string | null
+    status?: string
+}

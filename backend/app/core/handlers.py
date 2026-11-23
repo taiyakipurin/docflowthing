@@ -10,7 +10,9 @@ from app.core.exceptions import (
     DocumentNotFoundError,
     DocumentAlreadyExistsError,
     DocumentStateError,
-    DocumentAccessDeniedError
+    DocumentAccessDeniedError,
+    ServerNotFoundError,
+    ServerAccessDeniedError
 )
 
 async def user_not_found_handler(
@@ -92,5 +94,23 @@ async def document_access_denied_error_handler(
     return JSONResponse(
         status_code=401,
         content={'detail': 'Document access denied'}
+    )
+
+async def server_not_found_handler(
+        request: Request,
+        exc: ServerNotFoundError
+):
+    return JSONResponse(
+        status_code=404,
+        content={'detail': 'Server not found'}
+    )
+
+async def server_access_denied_handler(
+        request: Request,
+        exc: ServerAccessDeniedError
+):
+    return JSONResponse(
+        status_code=401,
+        content={'detail': 'Server access denied'}
     )
 

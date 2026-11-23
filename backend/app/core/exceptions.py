@@ -30,3 +30,9 @@ class DocumentStateError(AppException):
 
 class DocumentAccessDeniedError(AppException):
     pass
+
+class ServerNotFoundError(AppException):
+    pass
+
+class ServerAccessDeniedError(AppException):
+    pass

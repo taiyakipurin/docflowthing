@@ -2,31 +2,61 @@
     {
         "hostname": "web-01",
         "ip_address": "192.0.2.10",
+        "server_type": "WEB",
+        "os": "Ubuntu",
+        "os_version": "24.04 LTS",
+        "environment": "PRODUCTION",
+        "cpu": 4,
+        "ram": 8,
         "description": "Основной веб-сервер",
-        "status": "active"
+        "status": "ACTIVE"
     },
     {
         "hostname": "web-02",
         "ip_address": "192.0.2.11",
+        "server_type": "WEB",
+        "os": "Debian",
+        "os_version": "13",
+        "environment": "PRODUCTION",
+        "cpu": 4,
+        "ram": 8,
         "description": "Резервный веб-сервер",
-        "status": "active"
+        "status": "ACTIVE"
     },
     {
         "hostname": "db-01",
         "ip_address": "192.0.2.20",
+        "server_type": "DATABASE",
+        "os": "Ubuntu",
+        "os_version": "22.04 LTS",
+        "environment": "PRODUCTION",
+        "cpu": 8,
+        "ram": 32,
         "description": "Основной сервер базы данных",
-        "status": "active"
+        "status": "ACTIVE"
     },
     {
         "hostname": "app-01",
         "ip_address": "192.0.2.30",
+        "server_type": "APPLICATION",
+        "os": "Debian",
+        "os_version": "12",
+        "environment": "PRODUCTION",
+        "cpu": 4,
+        "ram": 16,
         "description": "Сервер прикладных сервисов",
-        "status": "maintenance"
+        "status": "MAINTENANCE"
     },
     {
         "hostname": "monitor-01",
         "ip_address": "192.0.2.40",
+        "server_type": "OTHER",
+        "os": "Ubuntu",
+        "os_version": "24.04 LTS",
+        "environment": "TEST",
+        "cpu": 2,
+        "ram": 4,
         "description": "Сервер мониторинга инфраструктуры",
-        "status": "inactive"
+        "status": "INACTIVE"
     }
 ]
