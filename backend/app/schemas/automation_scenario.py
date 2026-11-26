@@ -7,7 +7,10 @@ class AutomationScenarioCreate(BaseModel):
     playbook_path: str
 
 class AutomationScenarioUpdate(BaseModel):
-    pass
+    name: str | None = None
+    description: str | None = None
+    playbook_path: str | None = None
+    is_active: bool | None = None
 
 class AutomationScenarioResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

@@ -9,18 +9,14 @@ class JobServerResultStatus(StrEnum):
     FAILED = 'failed'
     UNREACHABLE = 'unreachable'
 
-class JobServerResultCreate(BaseModel):
-    job_id: int
-    server_id: int
-
 class JobServerResultResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     job_id: int
     server_id: int
     status: JobServerResultStatus
-    stdout: str | None
-    stderr: str | None
-    started_at: datetime | None
-    finished_at: datetime | None
+    stdout: str | None = None
+    stderr: str | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
 

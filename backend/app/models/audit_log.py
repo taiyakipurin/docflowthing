@@ -1,6 +1,6 @@
 from sqlalchemy import BigInteger, String, ForeignKey, DateTime, func, JSON
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from app.core.database import Base
@@ -14,10 +14,10 @@ class AuditLog(Base):
         autoincrement=True
     )
 
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[int | None] = mapped_column(
         BigInteger,
         ForeignKey('users.id'),
-        nullable=False
+        nullable=True
     )
 
     action: Mapped[str] = mapped_column(
@@ -42,7 +42,7 @@ class AuditLog(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
+        server_default=func.now(timezone.utc),
         nullable=False
     )
 

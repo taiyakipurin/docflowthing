@@ -1,5 +1,12 @@
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from sqlalchemy import BigInteger, String, ForeignKey, DateTime, Text, Integer, UniqueConstraint
+from sqlalchemy import (
+    BigInteger,
+    String,
+    ForeignKey,
+    DateTime,
+    Text,
+    UniqueConstraint
+)
 from datetime import datetime
 
 from app.core.database import Base
@@ -30,14 +37,16 @@ class JobServerResult(Base):
     server_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey('servers.id'),
+        nullable=False
     )
 
     status: Mapped[str] = mapped_column(
         String(50),
-        nullable=False
+        nullable=False,
+        default='pending'
     )
 
-    stdout: Mapped[str] = mapped_column(
+    stdout: Mapped[str | None] = mapped_column(
         Text,
         nullable=True
     )

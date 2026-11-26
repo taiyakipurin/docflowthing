@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
 
 from app.core.database import Base
-from app.models.infrastructure_document import InfrastructureDocument
 
 
 class AutomationJob(Base):

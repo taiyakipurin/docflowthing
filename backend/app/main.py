@@ -11,7 +11,8 @@ from app.core.exceptions import (
     DocumentStateError,
     DocumentAccessDeniedError,
     ServerNotFoundError,
-    ServerAccessDeniedError
+    ServerAccessDeniedError,
+    ScenarioNotFoundError
 )
 
 from app.core.handlers import (
@@ -25,7 +26,8 @@ from app.core.handlers import (
     document_state_error_handler,
     document_access_denied_error_handler,
     server_not_found_handler,
-    server_access_denied_handler
+    server_access_denied_handler,
+    scenario_not_found_handler
 )
 
 from app.api.v1.routes import (
@@ -33,7 +35,8 @@ from app.api.v1.routes import (
     role_router,
     auth_router,
     doc_router,
-    server_router
+    server_router,
+    scenario_router
 )
 
 def create_app():
@@ -50,6 +53,7 @@ def create_app():
     app.add_exception_handler(DocumentAccessDeniedError, document_access_denied_error_handler)
     app.add_exception_handler(ServerNotFoundError, server_not_found_handler)
     app.add_exception_handler(ServerAccessDeniedError, server_access_denied_handler)
+    app.add_exception_handler(ScenarioNotFoundError, scenario_not_found_handler)
 
     api_v1 = APIRouter(prefix="/api/v1")
 
@@ -62,6 +66,7 @@ def create_app():
     api_v1.include_router(auth_router)
     api_v1.include_router(doc_router)
     api_v1.include_router(server_router)
+    api_v1.include_router(scenario_router)
     app.include_router(api_v1)
 
     return app

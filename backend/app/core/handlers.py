@@ -1,3 +1,5 @@
+from urllib import request
+
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
@@ -12,9 +14,16 @@ from app.core.exceptions import (
     DocumentStateError,
     DocumentAccessDeniedError,
     ServerNotFoundError,
-    ServerAccessDeniedError
+    ServerAccessDeniedError,
+    ScenarioNotFoundError,
+    JobStateError,
+    JobNotFoundError,
+    JobAccessDeniedError,
+    AppException,
+    ScenarioStateError
 )
 
+#users
 async def user_not_found_handler(
         request: Request,
         exc: UserNotFoundError
@@ -42,6 +51,7 @@ async def role_not_found_handler(
         content={'detail': 'Role not found'}
     )
 
+#auth
 async def invalid_credentials_handler(
         request: Request,
         exc: InvalidCredentialsError
@@ -60,6 +70,7 @@ async def invalid_refresh_token_handler(
         content={'detail': 'Invalid refresh token'}
     )
 
+#documents
 async def document_not_found_handler(
         request: Request,
         exc: DocumentNotFoundError
@@ -96,6 +107,7 @@ async def document_access_denied_error_handler(
         content={'detail': 'Document access denied'}
     )
 
+#servers
 async def server_not_found_handler(
         request: Request,
         exc: ServerNotFoundError
@@ -112,5 +124,51 @@ async def server_access_denied_handler(
     return JSONResponse(
         status_code=401,
         content={'detail': 'Server access denied'}
+    )
+
+#scenarios
+async def scenario_not_found_handler(
+    request: Request,
+    exc: ScenarioNotFoundError
+):
+    return JSONResponse(
+        status_code=404,
+        content={'detail': 'Scenario not found'}
+    )
+async def scenario_state_error_handler(
+    request: Request,
+    exc: ScenarioStateError
+):
+    return JSONResponse(
+        status_code=400,
+        content={'detail': 'Scenario state error'}
+    )
+
+#automation jobs
+async def job_state_error_handler(
+        request: Request,
+        exc: JobStateError
+):
+    return JSONResponse(
+        status_code=400,
+        content={'detail': 'Job state error'}
+    )
+
+async def job_access_denied_error_handler(
+        request: Request,
+        exc: JobAccessDeniedError
+):
+    return JSONResponse(
+        status_code=401,
+        content={'detail': 'Job access denied'}
+    )
+
+async def job_not_found_handler(
+        request: Request,
+        exc: JobNotFoundError
+):
+    return JSONResponse(
+        status_code=404,
+        content={'detail': 'Job not found'}
     )
 
