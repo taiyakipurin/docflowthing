@@ -16,6 +16,33 @@ services:
       timeout: 5s
       retries: 5
 
+  test-01:
+    build:
+      context: ./backend/ansible/targets
+    container_name: docflow-test-01
+    hostname: test-01
+    restart: unless-stopped
+    volumes:
+      - ./backend/ansible/ssh:/run/ansible-ssh:ro
+
+  test-02:
+    build:
+      context: ./backend/ansible/targets
+    container_name: docflow-test-02
+    hostname: test-02
+    restart: unless-stopped
+    volumes:
+      - ./backend/ansible/ssh:/run/ansible-ssh:ro
+
+  test-03:
+    build:
+      context: ./backend/ansible/targets
+    container_name: docflow-test-03
+    hostname: test-03
+    restart: unless-stopped
+    volumes:
+      - ./backend/ansible/ssh:/run/ansible-ssh:ro
+
   backend:
     build:
       context: .
@@ -30,6 +57,9 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+      - ./backend/ansible/ssh:/run/ansible-ssh:ro
+#      - ./backend/ansible/ssh/id_ed25519:/root/.ssh/id_ed25519:ro
+
     depends_on:
       db:
         condition: service_healthy
@@ -60,6 +90,8 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+
+
 
 volumes:
   postgres_data:
