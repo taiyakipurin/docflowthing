@@ -1,0 +1,13 @@
+---
+- name: Ansible test
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: print hello
+      ansible.builtin.debug:
+        msg: "hello ^o^"
+
+    - name: print not hello
+      ansible.builtin.debug:
+        msg: "not hello. and furthermore: goodbye."
